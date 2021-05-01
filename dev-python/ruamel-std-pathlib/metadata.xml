@@ -5,8 +5,21 @@
 		<email>andrey_utkin@gentoo.org</email>
 		<name>Andrey Utkin</name>
 	</maintainer>
+	<maintainer type="person">
+		<email>marecki@gentoo.org</email>
+		<name>Marek Szuba</name>
+	</maintainer>
+	<maintainer type="person" proxied="yes">
+		<email>zoltan@sinustrom.info</email>
+		<name>Zoltan Puskas</name>
+	</maintainer>
+	<maintainer type="project" proxied="proxy">
+		<email>proxy-maint@gentoo.org</email>
+		<name>Proxy Maintainers</name>
+	</maintainer>
+	<stabilize-allarches/>
 	<upstream>
-		<remote-id type="bitbucket">ruamel/std.pathlib</remote-id>
 		<remote-id type="pypi">ruamel.std.pathlib</remote-id>
+		<remote-id type="sourceforge">ruamel-std-pathlib</remote-id>
 	</upstream>
 </pkgmetadata>

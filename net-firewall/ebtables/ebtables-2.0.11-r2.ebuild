@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,13 +9,13 @@ MY_PV="$(ver_rs 3 '-' )"
 MY_P="${PN}-${MY_PV}"
 
 DESCRIPTION="Controls Ethernet frame filtering on a Linux bridge, MAC NAT and brouting"
-HOMEPAGE="http://ebtables.sourceforge.net/"
-SRC_URI="ftp://ftp.netfilter.org/pub/${PN}/${MY_P}.tar.gz"
+HOMEPAGE="https://ebtables.netfilter.org/"
+SRC_URI="http://ftp.netfilter.org/pub/${PN}/${MY_P}.tar.gz"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ppc ~ppc64 x86"
+KEYWORDS="amd64 ~arm arm64 ppc ~ppc64 x86"
 IUSE="+perl static"
 
 BDEPEND=">=app-eselect/eselect-iptables-20200508"
@@ -44,11 +44,12 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	# don't install perl scripts if USE=perl is disabled
+	# Don't install perl scripts if USE=perl is disabled.
 	if ! use perl; then
 		sed -e '/sbin_SCRIPTS/ d' -i Makefile.am || die
 	fi
 
+	# The bundled autotools are borked, so force a rebuild.
 	eautoreconf
 }
 
@@ -78,8 +79,6 @@ src_install() {
 	else
 		into /
 		newsbin static ebtables
-		insinto /etc
-		doins ethertypes
 	fi
 
 	newman ebtables-legacy.8 ebtables.8

@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: rust-toolchain.eclass
@@ -35,7 +35,8 @@ inherit multilib-build
 rust_abi() {
 	local CTARGET=${1:-${CHOST}}
 	case ${CTARGET%%*-} in
-		aarch64*)	  echo aarch64-unknown-linux-gnu;;
+		aarch64*gnu)  echo aarch64-unknown-linux-gnu;;
+		aarch64*musl) echo aarch64-unknown-linux-musl;;
 		mips64*)	  echo mips64-unknown-linux-gnuabi64;;
 		powerpc64le*) echo powerpc64le-unknown-linux-gnu;;
 		powerpc64*)   echo powerpc64-unknown-linux-gnu;;
@@ -109,7 +110,8 @@ rust_all_arch_uris()
   uris+="arm?        ( $(rust_arch_uri arm-unknown-linux-gnueabi      "$@")
                        $(rust_arch_uri arm-unknown-linux-gnueabihf    "$@")
                        $(rust_arch_uri armv7-unknown-linux-gnueabihf  "$@") ) "
-  uris+="arm64?      ( $(rust_arch_uri aarch64-unknown-linux-gnu      "$@") ) "
+  uris+="arm64?      ( elibc_glibc? ( $(rust_arch_uri aarch64-unknown-linux-gnu "$@") ) 
+                       elibc_musl?  ( $(rust_arch_uri aarch64-unknown-linux-musl "$@") ) ) "
   uris+="mips?       ( $(rust_arch_uri mips-unknown-linux-gnu         "$@")
                        $(rust_arch_uri mipsel-unknown-linux-gnu       "$@")
                        $(rust_arch_uri mips64-unknown-linux-gnuabi64  "$@") ) "

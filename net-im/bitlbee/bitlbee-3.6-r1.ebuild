@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..8} )
+PYTHON_COMPAT=( python3_{7..9} )
 
 inherit python-any-r1 systemd toolchain-funcs
 
@@ -12,7 +12,7 @@ if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://get.bitlbee.org/src/${P}.tar.gz"
-	KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
+	KEYWORDS="amd64 ppc ~ppc64 x86"
 fi
 
 DESCRIPTION="irc to IM gateway that support multiple IM protocols"
@@ -27,8 +27,9 @@ RESTRICT="!test? ( test )"
 
 REQUIRED_USE="
 	|| ( purple xmpp msn oscar )
-	xmpp? ( !nss )
+	purple? ( plugins )
 	test? ( plugins )
+	xmpp? ( !nss )
 "
 
 COMMON_DEPEND="
@@ -64,6 +65,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.5-systemd-user.patch
 	"${FILESDIR}"/${PN}-3.5-libcheck.patch
 	"${FILESDIR}"/${PN}-3.5-libevent.patch
+	"${FILESDIR}"/${P}-disabled-plugins-use.patch
 )
 
 src_configure() {

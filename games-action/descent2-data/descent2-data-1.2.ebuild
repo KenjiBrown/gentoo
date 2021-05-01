@@ -1,10 +1,10 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 CDROM_OPTIONAL="yes"
-inherit cdrom estack eutils
+inherit cdrom estack
 
 # Not possible to apply official 1.2 patch under Linux. A Gentoo user
 # created Xdelta patches and the DXX-Rebirth project kindly hosted them.
@@ -28,7 +28,7 @@ RDEPEND="!<games-action/d2x-0.2.5-r3
 	!games-action/descent2-demodata"
 
 DEPEND="cdinstall? (
-		app-arch/unarj
+		app-arch/arj
 		dev-util/xdelta:3
 	)
 	!cdinstall? (
@@ -52,7 +52,7 @@ src_unpack() {
 		case ${CDROM_SET} in
 			0)
 				einfo "Found Descent 2 CD"
-				unarj e "${CDROM_ABSMATCH}" || die ;;
+				arj e -y -_ "${CDROM_ABSMATCH}" || die ;;
 			1)
 				einfo "Found Descent 2 installation"
 				cd "${CDROM_ABSMATCH%/*}" || die ;;

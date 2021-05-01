@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..8} )
+PYTHON_COMPAT=( python3_{7..8} )
 
 inherit flag-o-matic linux-info python-any-r1 toolchain-funcs
 
@@ -15,7 +15,7 @@ SRC_URI="https://github.com/kernelslacker/x86info/archive/${COMMIT}.tar.gz -> ${
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86"
+KEYWORDS="-* ~amd64 x86"
 
 RDEPEND="sys-apps/pciutils:="
 DEPEND="${RDEPEND}"

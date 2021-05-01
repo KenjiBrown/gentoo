@@ -1,9 +1,9 @@
-# Copyright 2020 Gentoo Authors
+# Copyright 2020-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit eutils
+inherit optfeature
 
 DESCRIPTION="Script to encode H.264/AVC/MPEG-4 Part 10 formats"
 HOMEPAGE="https://h264enc.sourceforge.net/"
@@ -30,7 +30,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "Optional encoders:"
 	optfeature "aac support" "media-libs/faac media-libs/libaacplus"
 	optfeature "dvd support" media-video/lsdvd
 	optfeature "flac support" media-libs/flac

@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
 
 inherit systemd toolchain-funcs python-any-r1
 
@@ -14,7 +14,7 @@ SRC_URI="https://maradns.samiam.org/download/${PV%.*}/${PV}/${P}.tar.xz"
 # The GPL-2 covers the init script, bug 426018.
 LICENSE="BSD-2 GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~mips ~ppc ~x86"
+KEYWORDS="amd64 ~mips ~ppc x86"
 IUSE="examples ipv6"
 
 DEPEND="${PYTHON_DEPS}"

@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -12,7 +12,7 @@ HOMEPAGE="http://fcron.free.fr/"
 SRC_URI="http://fcron.free.fr/archives/${P}.src.tar.gz"
 
 LICENSE="GPL-2"
-KEYWORDS="amd64 arm hppa ~ia64 ~mips ppc ppc64 sparc x86"
+KEYWORDS="amd64 arm ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
 IUSE="audit debug pam selinux l10n_fr +mta +system-crontab readline"
 
 DEPEND="audit? ( sys-process/audit )
@@ -147,7 +147,7 @@ src_install() {
 	fperms 0750 /etc/fcron
 	fperms 0640 /etc/fcron/fcron.{allow,deny,conf}
 
-	pamd_mimic system-services fcron auth account session
+	use pam && pamd_mimic system-services fcron auth account session
 	cat > "${T}"/fcrontab.pam <<- EOF
 	# Don't ask for the user's password; fcrontab will only allow to
 	# change user if running as root.
@@ -159,7 +159,7 @@ src_install() {
 	account		include			system-auth
 	session		include			system-auth
 	EOF
-	newpamd "${T}"/fcrontab.pam fcrontab
+	use pam && newpamd "${T}"/fcrontab.pam fcrontab
 
 	newinitd "${FILESDIR}"/fcron.init.4 fcron
 	systemd_newunit "${S}/script/fcron.init.systemd" fcron.service

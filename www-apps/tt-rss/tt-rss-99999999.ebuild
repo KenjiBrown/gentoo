@@ -1,37 +1,54 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit git-r3 prefix user webapp
+inherit git-r3 prefix webapp
 
 DESCRIPTION="Tiny Tiny RSS - A web-based news feed (RSS/Atom) aggregator using AJAX"
 HOMEPAGE="https://tt-rss.org/"
-EGIT_REPO_URI="https://git.tt-rss.org/git/${PN}.git"
+EGIT_REPO_URI="https://git.tt-rss.org/fox/${PN}.git"
 LICENSE="GPL-3"
 SLOT="${PV}" # Single live slot.
-IUSE="+acl daemon +mysqli postgres"
+IUSE="+acl daemon gd +mysqli postgres"
 REQUIRED_USE="|| ( mysqli postgres )"
 
-DEPEND="daemon? ( acl? ( sys-apps/acl ) )"
+PHP_SLOTS="7.4 7.3 7.2"
+PHP_USE="gd?,mysqli?,postgres?,curl,fileinfo,intl,json(+),pdo,unicode,xml"
 
-RDEPEND="${DEPEND}
-	daemon? ( dev-lang/php:*[mysqli?,postgres?,curl,cli,intl,pcntl,pdo] )
-	!daemon? ( dev-lang/php:*[mysqli?,postgres?,curl,intl,pdo] )
-	virtual/httpd-php:*"
+php_rdepend() {
+	local slot
+	echo "|| ("
+	for slot in ${PHP_SLOTS}; do
+		echo "(
+			virtual/httpd-php:${slot}
+			dev-lang/php:${slot}[$1]
+		)"
+	done
+	echo ")"
+}
 
-DEPEND="!vhosts? ( ${DEPEND} )"
+DEPEND="
+	daemon? ( acl? ( sys-apps/acl ) )
+"
+
+RDEPEND="
+	${DEPEND}
+	daemon? (
+		acct-user/ttrssd
+		acct-group/ttrssd
+		$(php_rdepend "${PHP_USE},cli,pcntl")
+	)
+	!daemon? (
+		$(php_rdepend "${PHP_USE}")
+	)
+"
+
+DEPEND="
+	!vhosts? ( ${DEPEND} )
+"
 
 need_httpd_cgi # From webapp.eclass
-
-pkg_setup() {
-	webapp_pkg_setup
-
-	if use daemon; then
-		enewgroup ttrssd
-		enewuser ttrssd -1 /bin/sh /dev/null ttrssd
-	fi
-}
 
 src_configure() {
 	hprefixify config.php-dist

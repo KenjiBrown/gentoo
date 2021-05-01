@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
 
 inherit distutils-r1 flag-o-matic
 
@@ -13,7 +13,7 @@ SRC_URI="https://www.alsa-project.org/files/pub/pyalsa/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
+KEYWORDS="~alpha amd64 ~arm64 ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
 IUSE=""
 
 RDEPEND="media-libs/alsa-lib"

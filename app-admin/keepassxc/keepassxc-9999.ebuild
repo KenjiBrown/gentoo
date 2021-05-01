@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit cmake xdg
+inherit cmake flag-o-matic xdg
 
 DESCRIPTION="KeePassXC - KeePass Cross-platform Community Edition"
 HOMEPAGE="https://keepassxc.org"
@@ -15,7 +15,7 @@ if [[ "${PV}" != 9999 ]] ; then
 	else
 		#SRC_URI="https://github.com/keepassxreboot/keepassxc/archive/${PV}.tar.gz -> ${P}.tar.gz"
 		SRC_URI="https://github.com/keepassxreboot/keepassxc/releases/download/${PV}/${P}-src.tar.xz"
-		KEYWORDS="~amd64 ~arm64 ~x86"
+		KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 	fi
 else
 	inherit git-r3
@@ -24,7 +24,9 @@ fi
 
 LICENSE="LGPL-2.1 GPL-2 GPL-3"
 SLOT="0"
-IUSE="autotype browser ccache debug keeshare +network test yubikey"
+IUSE="doc autotype browser ccache keeshare +network test yubikey"
+
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	app-crypt/argon2:=
@@ -46,7 +48,7 @@ RDEPEND="
 		x11-libs/libXi
 		x11-libs/libXtst
 	)
-	keeshare? ( dev-libs/quazip )
+	keeshare? ( dev-libs/quazip:0= )
 	yubikey? ( sys-auth/ykpers )
 "
 
@@ -57,9 +59,10 @@ DEPEND="
 "
 BDEPEND="
 	ccache? ( dev-util/ccache )
+	doc? ( dev-ruby/asciidoctor )
 "
 
-RESTRICT="!test? ( test )"
+PATCHES=( "${FILESDIR}"/${PN}-2.6.4-quazip1.patch ) # pending upstream PR#5511
 
 src_prepare() {
 	 use test || \
@@ -69,12 +72,15 @@ src_prepare() {
 }
 
 src_configure() {
+	# https://github.com/keepassxreboot/keepassxc/issues/5801
+	filter-flags -flto*
+
 	local mycmakeargs=(
 		-DWITH_CCACHE="$(usex ccache)"
 		-DWITH_GUI_TESTS=OFF
 		-DWITH_TESTS="$(usex test)"
 		-DWITH_XC_AUTOTYPE="$(usex autotype)"
-		-DWITH_XC_DOCS=OFF
+		-DWITH_XC_DOCS="$(usex doc)"
 		-DWITH_XC_BROWSER="$(usex browser)"
 		-DWITH_XC_FDOSECRETS=ON
 		-DWITH_XC_KEESHARE="$(usex keeshare)"

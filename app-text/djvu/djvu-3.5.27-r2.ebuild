@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools desktop eutils flag-o-matic xdg-utils
+inherit autotools desktop flag-o-matic optfeature xdg-utils
 
 COMMIT="a00b7618c22fb35b030582147a4479c4cf41c349"
 MY_P="${PN}-${PN}libre-git-${COMMIT}"
@@ -64,7 +64,7 @@ pkg_postinst() {
 	xdg_icon_cache_update
 	xdg_mimeinfo_database_update
 	has_version app-text/djview || \
-		optfeature "For djviewer or browser plugin" app-text/djview
+		optfeature "djviewer or browser plugin" app-text/djview
 }
 
 pkg_postrm() {

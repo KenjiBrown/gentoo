@@ -11,7 +11,7 @@ HOMEPAGE="https://wiki.gnome.org/Projects/Rygel"
 
 LICENSE="LGPL-2.1+ CC-BY-SA-3.0"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="X +introspection +sqlite tracker test transcode"
 RESTRICT="!test? ( test )"
 
@@ -36,7 +36,7 @@ RDEPEND="
 		dev-libs/libunistring:=
 		x11-libs/gdk-pixbuf:2
 	)
-	tracker? ( app-misc/tracker:= )
+	tracker? ( app-misc/tracker:0= )
 	transcode? (
 		media-libs/gst-plugins-bad:1.0
 		media-plugins/gst-plugins-twolame:1.0

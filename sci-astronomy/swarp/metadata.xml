@@ -5,8 +5,7 @@
 		<email>sci-astronomy@gentoo.org</email>
 		<name>Gentoo Astronomy Project</name>
 	</maintainer>
-	<longdescription lang="en">
-		SWarp takes astronomical FITS images with a WCS-like projection,
-		resample and stack them all.
-	</longdescription>
+	<use>
+		<flag name="cfitsio">Link with <pkg>sci-libs/cfitsio</pkg></flag>
+	</use>
 </pkgmetadata>

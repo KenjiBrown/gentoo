@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 
 inherit autotools flag-o-matic perl-module python-single-r1 eapi7-ver
 
@@ -14,7 +14,7 @@ SRC_URI="http://ftp.rpm.org/releases/rpm-$(ver_cut 1-2).x/${P}.tar.bz2"
 
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 s390 ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
 
 # Tests are broken. See bug 657500
 RESTRICT="test"
@@ -36,7 +36,7 @@ CDEPEND="!app-arch/rpm5
 	dev-libs/nss
 	python? ( ${PYTHON_DEPS} )
 	nls? ( virtual/libintl )
-	lua? ( >=dev-lang/lua-5.1.0:*[deprecated] )
+	lua? ( >=dev-lang/lua-5.1.0:0=[deprecated] )
 	acl? ( virtual/acl )
 	caps? ( >=sys-libs/libcap-2.0 )
 	zstd? ( app-arch/zstd )

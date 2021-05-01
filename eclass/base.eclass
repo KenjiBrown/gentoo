@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # DEPRECATED
@@ -17,6 +17,7 @@
 # base_src_install() - default
 # base_src_install_docs() - einstalldocs from eutils.eclass
 
+# @DEAD
 # @ECLASS: base.eclass
 # @MAINTAINER:
 # QA Team <qa@gentoo.org>
@@ -24,6 +25,7 @@
 # Original author: Dan Armak <danarmak@gentoo.org>
 # @SUPPORTED_EAPIS: 0 1 2 3 4 5
 # @BLURB: The base eclass defines some default functions and variables.
+# @DEPRECATED: none
 # @DESCRIPTION:
 # The base eclass defines some default functions and variables.
 

@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{7..9} pypy3 )
 
 inherit distutils-r1
 
@@ -12,7 +12,7 @@ HOMEPAGE="https://github.com/phn/jdcal"
 SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
-KEYWORDS="amd64 ~arm x86 ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 ~arm ~arm64 x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 
 distutils_enable_tests pytest

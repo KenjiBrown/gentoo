@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{7..9} )
 
 inherit distutils-r1 flag-o-matic
 
@@ -15,7 +15,7 @@ SRC_URI="https://github.com/rogerbinns/apsw/releases/download/${MY_PV}/${MY_P}.z
 
 LICENSE="ZLIB"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ppc64 ~x86"
+KEYWORDS="amd64 ~arm ~ppc64 x86"
 IUSE="doc"
 
 RDEPEND=">=dev-db/sqlite-${PV%_p*}"
@@ -27,7 +27,6 @@ S=${WORKDIR}/${MY_P}
 PATCHES=( "${FILESDIR}/${PN}-3.6.20.1-fix_tests.patch" )
 
 python_compile() {
-	python_is_python3 || append-cflags -fno-strict-aliasing
 	distutils-r1_python_compile --enable=load_extension
 }
 

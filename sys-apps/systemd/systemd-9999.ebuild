@@ -1,4 +1,4 @@
-# Copyright 2011-2020 Gentoo Authors
+# Copyright 2011-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -16,10 +16,10 @@ else
 	MY_P=${MY_PN}-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/${MY_PN}/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7..9} )
 
 inherit bash-completion-r1 linux-info meson multilib-minimal ninja-utils pam python-any-r1 systemd toolchain-funcs udev usr-ldscript
 
@@ -28,11 +28,12 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux split-usr static-libs +sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi homed http +hwdb idn importd +kmod +lz4 lzma nat pam pcre pkcs11 policykit pwquality qrcode repart +resolvconf +seccomp selinux split-usr static-libs +sysv-utils test tpm vanilla xkb +zstd"
 
 REQUIRED_USE="
-	homed? ( cryptsetup )
+	homed? ( cryptsetup pam )
 	importd? ( curl gcrypt lzma )
+	pwquality? ( homed )
 "
 RESTRICT="!test? ( test )"
 
@@ -72,7 +73,10 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	repart? ( ${OPENSSL_DEP} )
 	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
 	selinux? ( sys-libs/libselinux:0= )
-	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
+	tpm? ( app-crypt/tpm2-tss:0= )
+	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )
+	zstd? ( >=app-arch/zstd-1.4.0:0=[${MULTILIB_USEDEP}] )
+"
 
 # Newer linux-headers needed by ia64, bug #480218
 DEPEND="${COMMON_DEPEND}
@@ -82,29 +86,38 @@ DEPEND="${COMMON_DEPEND}
 
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
-	acct-group/adm
-	acct-group/wheel
-	acct-group/kmem
-	acct-group/tty
-	acct-group/utmp
-	acct-group/audio
-	acct-group/cdrom
-	acct-group/dialout
-	acct-group/disk
-	acct-group/input
-	acct-group/kvm
-	acct-group/render
-	acct-group/tape
-	acct-group/video
-	acct-group/systemd-journal
-	acct-user/systemd-journal-remote
-	acct-user/systemd-coredump
-	acct-user/systemd-network
-	acct-user/systemd-resolve
-	acct-user/systemd-timesync
+	>=acct-group/adm-0-r1
+	>=acct-group/wheel-0-r1
+	>=acct-group/kmem-0-r1
+	>=acct-group/tty-0-r1
+	>=acct-group/utmp-0-r1
+	>=acct-group/audio-0-r1
+	>=acct-group/cdrom-0-r1
+	>=acct-group/dialout-0-r1
+	>=acct-group/disk-0-r1
+	>=acct-group/input-0-r1
+	>=acct-group/kvm-0-r1
+	>=acct-group/lp-0-r1
+	>=acct-group/render-0-r1
+	acct-group/sgx
+	>=acct-group/tape-0-r1
+	acct-group/users
+	>=acct-group/video-0-r1
+	>=acct-group/systemd-journal-0-r1
+	>=acct-user/root-0-r1
+	acct-user/nobody
+	>=acct-user/systemd-journal-remote-0-r1
+	>=acct-user/systemd-coredump-0-r1
+	>=acct-user/systemd-network-0-r1
+	acct-user/systemd-oom
+	>=acct-user/systemd-resolve-0-r1
+	>=acct-user/systemd-timesync-0-r1
 	>=sys-apps/baselayout-2.2
 	selinux? ( sec-policy/selinux-base-policy[systemd] )
-	sysv-utils? ( !sys-apps/sysvinit )
+	sysv-utils? (
+		!sys-apps/openrc[sysv-utils(-)]
+		!sys-apps/sysvinit
+	)
 	!sysv-utils? ( sys-apps/sysvinit )
 	resolvconf? ( !net-dns/openresolv )
 	!build? ( || (
@@ -120,7 +133,7 @@ RDEPEND="${COMMON_DEPEND}
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
 PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 	hwdb? ( >=sys-apps/hwids-20150417[udev] )
-	>=sys-fs/udev-init-scripts-25
+	>=sys-fs/udev-init-scripts-34
 	policykit? ( sys-auth/polkit )
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
 
@@ -154,7 +167,7 @@ pkg_pretend() {
 		local CONFIG_CHECK="~AUTOFS4_FS ~BLK_DEV_BSG ~CGROUPS
 			~CHECKPOINT_RESTORE ~DEVTMPFS ~EPOLL ~FANOTIFY ~FHANDLE
 			~INOTIFY_USER ~IPV6 ~NET ~NET_NS ~PROC_FS ~SIGNALFD ~SYSFS
-			~TIMERFD ~TMPFS_XATTR ~UNIX
+			~TIMERFD ~TMPFS_XATTR ~UNIX ~USER_NS
 			~CRYPTO_HMAC ~CRYPTO_SHA256 ~CRYPTO_USER_API_HASH
 			~!GRKERNSEC_PROC ~!IDE ~!SYSFS_DEPRECATED
 			~!SYSFS_DEPRECATED_V2"
@@ -206,7 +219,9 @@ src_prepare() {
 	if ! use vanilla; then
 		PATCHES+=(
 			"${FILESDIR}/gentoo-generator-path-r2.patch"
-			"${FILESDIR}/gentoo-systemctl-disable-sysv-sync.patch"
+			"${FILESDIR}/gentoo-systemctl-disable-sysv-sync-r1.patch"
+			"${FILESDIR}/gentoo-journald-audit.patch"
+			"${FILESDIR}/gentoo-pam.patch"
 		)
 	fi
 
@@ -222,11 +237,11 @@ src_configure() {
 	multilib-minimal_src_configure
 }
 
-meson_use() {
+sd_use() {
 	usex "$1" true false
 }
 
-meson_multilib() {
+sd_native() {
 	if multilib_is_native_abi; then
 		echo true
 	else
@@ -234,7 +249,7 @@ meson_multilib() {
 	fi
 }
 
-meson_multilib_native_use() {
+sd_native_use() {
 	if multilib_is_native_abi && use "$1"; then
 		echo true
 	else
@@ -260,63 +275,67 @@ multilib_src_configure() {
 		-Dima=true
 		-Ddefault-hierarchy=$(usex cgroup-hybrid hybrid unified)
 		# Optional components/dependencies
-		-Dacl=$(meson_multilib_native_use acl)
-		-Dapparmor=$(meson_multilib_native_use apparmor)
-		-Daudit=$(meson_multilib_native_use audit)
-		-Dlibcryptsetup=$(meson_multilib_native_use cryptsetup)
-		-Dlibcurl=$(meson_multilib_native_use curl)
-		-Ddns-over-tls=$(meson_multilib_native_use dns-over-tls)
-		-Delfutils=$(meson_multilib_native_use elfutils)
-		-Dgcrypt=$(meson_use gcrypt)
-		-Dgnu-efi=$(meson_multilib_native_use gnuefi)
+		-Dacl=$(sd_native_use acl)
+		-Dapparmor=$(sd_native_use apparmor)
+		-Daudit=$(sd_native_use audit)
+		-Dlibcryptsetup=$(sd_native_use cryptsetup)
+		-Dlibcurl=$(sd_native_use curl)
+		-Ddns-over-tls=$(sd_native_use dns-over-tls)
+		-Delfutils=$(sd_native_use elfutils)
+		-Dgcrypt=$(sd_use gcrypt)
+		-Dgnu-efi=$(sd_native_use gnuefi)
+		-Defi-includedir="${ESYSROOT}/usr/include/efi"
+		-Defi-ld="$(tc-getLD)"
 		-Defi-libdir="${ESYSROOT}/usr/$(get_libdir)"
-		-Dhomed=$(meson_multilib_native_use homed)
-		-Dhwdb=$(meson_multilib_native_use hwdb)
-		-Dmicrohttpd=$(meson_multilib_native_use http)
-		-Didn=$(meson_multilib_native_use idn)
-		-Dimportd=$(meson_multilib_native_use importd)
-		-Dbzip2=$(meson_multilib_native_use importd)
-		-Dzlib=$(meson_multilib_native_use importd)
-		-Dkmod=$(meson_multilib_native_use kmod)
-		-Dlz4=$(meson_use lz4)
-		-Dxz=$(meson_use lzma)
-		-Dlibiptc=$(meson_multilib_native_use nat)
-		-Dpam=$(meson_use pam)
-		-Dp11kit=$(meson_multilib_native_use pkcs11)
-		-Dpcre2=$(meson_multilib_native_use pcre)
-		-Dpolkit=$(meson_multilib_native_use policykit)
-		-Dpwquality=$(meson_multilib_native_use pwquality)
-		-Dqrencode=$(meson_multilib_native_use qrcode)
-		-Drepart=$(meson_multilib_native_use repart)
-		-Dseccomp=$(meson_multilib_native_use seccomp)
-		-Dselinux=$(meson_multilib_native_use selinux)
-		-Ddbus=$(meson_multilib_native_use test)
-		-Dxkbcommon=$(meson_multilib_native_use xkb)
+		-Dhomed=$(sd_native_use homed)
+		-Dhwdb=$(sd_native_use hwdb)
+		-Dmicrohttpd=$(sd_native_use http)
+		-Didn=$(sd_native_use idn)
+		-Dimportd=$(sd_native_use importd)
+		-Dbzip2=$(sd_native_use importd)
+		-Dzlib=$(sd_native_use importd)
+		-Dkmod=$(sd_native_use kmod)
+		-Dlz4=$(sd_use lz4)
+		-Dxz=$(sd_use lzma)
+		-Dzstd=$(sd_use zstd)
+		-Dlibiptc=$(sd_native_use nat)
+		-Dpam=$(sd_use pam)
+		-Dp11kit=$(sd_native_use pkcs11)
+		-Dpcre2=$(sd_native_use pcre)
+		-Dpolkit=$(sd_native_use policykit)
+		-Dpwquality=$(sd_native_use pwquality)
+		-Dqrencode=$(sd_native_use qrcode)
+		-Drepart=$(sd_native_use repart)
+		-Dseccomp=$(sd_native_use seccomp)
+		-Dselinux=$(sd_native_use selinux)
+		-Dtpm2=$(sd_native_use tpm)
+		-Ddbus=$(sd_native_use test)
+		-Dxkbcommon=$(sd_native_use xkb)
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		-Ddefault-kill-user-processes=false
 		-Dcreate-log-dirs=false
 
 		# multilib options
-		-Dbacklight=$(meson_multilib)
-		-Dbinfmt=$(meson_multilib)
-		-Dcoredump=$(meson_multilib)
-		-Denvironment-d=$(meson_multilib)
-		-Dfirstboot=$(meson_multilib)
-		-Dhibernate=$(meson_multilib)
-		-Dhostnamed=$(meson_multilib)
-		-Dldconfig=$(meson_multilib)
-		-Dlocaled=$(meson_multilib)
-		-Dman=$(meson_multilib)
-		-Dnetworkd=$(meson_multilib)
-		-Dquotacheck=$(meson_multilib)
-		-Drandomseed=$(meson_multilib)
-		-Drfkill=$(meson_multilib)
-		-Dsysusers=$(meson_multilib)
-		-Dtimedated=$(meson_multilib)
-		-Dtimesyncd=$(meson_multilib)
-		-Dtmpfiles=$(meson_multilib)
-		-Dvconsole=$(meson_multilib)
+		-Dbacklight=$(sd_native)
+		-Dbinfmt=$(sd_native)
+		-Dcoredump=$(sd_native)
+		-Denvironment-d=$(sd_native)
+		-Dfirstboot=$(sd_native)
+		-Dhibernate=$(sd_native)
+		-Dhostnamed=$(sd_native)
+		-Dldconfig=$(sd_native)
+		-Dlocaled=$(sd_native)
+		-Dman=$(sd_native)
+		-Dnetworkd=$(sd_native)
+		-Dquotacheck=$(sd_native)
+		-Drandomseed=$(sd_native)
+		-Drfkill=$(sd_native)
+		-Dsysusers=$(sd_native)
+		-Dtimedated=$(sd_native)
+		-Dtimesyncd=$(sd_native)
+		-Dtmpfiles=$(sd_native)
+		-Dvconsole=$(sd_native)
 
 		# static-libs
 		-Dstatic-libsystemd=$(usex static-libs true false)
@@ -364,6 +383,9 @@ multilib_src_install_all() {
 	if ! use resolvconf && ! use sysv-utils; then
 		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
+
+	# https://bugs.gentoo.org/761763
+	rm -r "${ED}"/usr/lib/sysusers.d || die
 
 	# Preserve empty dirs in /etc & /var, bug #437008
 	keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}

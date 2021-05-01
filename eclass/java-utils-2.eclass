@@ -1,4 +1,4 @@
-# Copyright 2004-2018 Gentoo Authors
+# Copyright 2004-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: java-utils-2.eclass
@@ -1484,7 +1484,6 @@ java-pkg_ensure-vm-version-sufficient() {
 
 # @FUNCTION: java-pkg_is-vm-version-sufficient
 # @INTERNAL
-# @DESCRIPTION:
 # @RETURN: zero - VM is sufficient; non-zero - VM is not sufficient
 java-pkg_is-vm-version-sufficient() {
 	debug-print-function ${FUNCNAME} $*
@@ -1859,6 +1858,44 @@ ejunit4() {
 	debug-print-function ${FUNCNAME} $*
 
 	ejunit_ "junit-4" "${@}"
+}
+
+# @FUNCTION: etestng
+# @USAGE: etestng_ [-cp $classpath] <test classes>
+# @INTERNAL
+# @DESCRIPTION:
+# Testng wrapper function. Makes it easier to run the tests.
+# Launches the tests using org.testng.TestNG.
+#
+# @CODE
+# $1 - -cp or -classpath
+# $2 - the classpath passed to it
+# $@ - test classes for testng to run.
+# @CODE
+etestng() {
+	debug-print-function ${FUNCNAME} $*
+
+	local runner=org.testng.TestNG
+	local cp=$(java-pkg_getjars --with-dependencies testng)
+	local tests
+
+	if [[ ${1} = -cp || ${1} = -classpath ]]; then
+		cp="${cp}:${2}"
+		shift 2
+	else
+		cp="${cp}:."
+	fi
+
+	for test in ${@}; do
+		tests+="${test},"
+	done
+
+	debug-print "java -cp \"${cp}\" -Djava.io.tmpdir=\"${T}\""\
+		"-Djava.awt.headless=true ${runner}"\
+		"-usedefaultlisteners false -testclass ${tests}"
+	java -cp "${cp}" -Djava.io.tmpdir=\"${T}\" -Djava.awt.headless=true\
+		${runner} -usedefaultlisteners false -testclass ${tests}\
+		|| die "Running TestNG failed."
 }
 
 # @FUNCTION: java-utils-2_src_prepare
@@ -2554,14 +2591,14 @@ java-pkg_needs-vm() {
 
 # @FUNCTION: java-pkg_get-current-vm
 # @INTERNAL
-# @RETURN - The current VM being used
+# @RETURN: The current VM being used
 java-pkg_get-current-vm() {
 	java-config -f
 }
 
 # @FUNCTION: java-pkg_get-vm-vendor
 # @INTERNAL
-# @RETURN - The vendor of the current VM
+# @RETURN: The vendor of the current VM
 java-pkg_get-vm-vendor() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -2572,7 +2609,7 @@ java-pkg_get-vm-vendor() {
 
 # @FUNCTION: java-pkg_get-vm-version
 # @INTERNAL
-# @RETURN - The version of the current VM
+# @RETURN: The version of the current VM
 java-pkg_get-vm-version() {
 	debug-print-function ${FUNCNAME} $*
 
@@ -2581,12 +2618,12 @@ java-pkg_get-vm-version() {
 
 # @FUNCTION: java-pkg_build-vm-from-handle
 # @INTERNAL
+# @RETURN: VM handle of an available JDK
 # @DESCRIPTION:
 # Selects a build vm from a list of vm handles. First checks for the system-vm
 # beeing usable, then steps through the listed handles till a suitable vm is
 # found.
 #
-# @RETURN - VM handle of an available JDK
 java-pkg_build-vm-from-handle() {
 	debug-print-function ${FUNCNAME} "$*"
 

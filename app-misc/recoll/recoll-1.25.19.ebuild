@@ -1,17 +1,17 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_7 )
 
-inherit eutils linux-info python-single-r1 qmake-utils
+inherit linux-info optfeature python-single-r1 qmake-utils
 
-DESCRIPTION="A personal full text search package"
+DESCRIPTION="Personal full text search package"
 HOMEPAGE="https://www.lesbonscomptes.com/recoll/"
 SRC_URI="https://www.lesbonscomptes.com/recoll/${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64 x86"
 
@@ -109,10 +109,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "In order to extract the full functionality of "
-	elog "recoll, the following packages should be installed "
-	elog "to get the corresponding document support."
-
 	optfeature "XML based documents support"    "dev-libs/libxslt[python] dev-libs/libxml2[python]"
 	optfeature "PDF files support"              app-text/poppler
 	optfeature "PDF files with OCR support"     app-text/tesseract

@@ -1,12 +1,58 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
 
+# Rolf Eike Beer <eike@sf-mail.de> (2021-03-14)
+# dependencies not yet keyworded
+dev-ruby/globalid test
+
+# Miroslav Šulc <fordfrog@gentoo.org> (2021-03-13)
+# virtual/jdk isn't keyworded here
+media-libs/rubberband jni
+
+# Sam James <sam@gentoo.org> (2021-03-11)
+# media-libs/libheif isn't keyworded here
+# media-libs/libavif isn't keyworded here
+media-libs/gd avif heif
+
+# Georgy Yakovlev <gyakovlev@gentoo.org> (2021-01-19)
+# uchardet not stable/keyworded yet on this arch
+# bug #750032
+sys-apps/groff uchardet
+
+# Joonas Niilola <juippis@gentoo.org> (2021-01-15)
+# Dependency not keyworded on this arch.
+app-text/enchant voikko
+
+# Matthias Maier <tamiko@gentoo.org> (2020-12-03)
+# Requires sci-mathematics/z3.
+dev-util/cppcheck z3
+
+# Michał Górny <mgorny@gentoo.org> (2020-11-18)
+# Requires dev-python/coverage, bug #743355.
+dev-python/nose coverage
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2020-11-12)
+# media-sound/lash not keyworded, bug #736725
+media-sound/fluidsynth lash
+
+# Cédric Krier <cedk@gentoo.org> (2020-11-10)
+# virtual/rust has no hppa keyword
+dev-vcs/mercurial rust
+
+# Joonas Niilola <juippis@gentoo.org> (2020-10-08)
+# Dependency not keyworded on this arch.
+dev-libs/efl avif lua_single_target_luajit physics
+
+# Matt Turner <mattst88@gentoo.org> (2020-08-11)
+# No drivers on this architecture support Vulkan
+media-libs/mesa vulkan vulkan-overlay zink
+
 # Robin H. Johnson <robbat2@gentoo.org> (2020-07-02)
 # Mask io-uring & zbc pending keywording
-sys-block/fio -io-uring zbc
+sys-block/fio -io-uring -zbc
 
 # Michał Górny <mgorny@gentoo.org> (2020-06-14)
 # Requires dev-python/networkx.
@@ -62,17 +108,14 @@ dev-python/stevedore doc
 # app-emacs/wanderlust is not keyworded
 app-emacs/elscreen wanderlust
 
-# Patrick McLean <chutzpah@gentoo.org> (2020-02-15)
-# Mask until dev-libs/libfido2 is keyworded
-net-misc/openssh security-key
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2020-02-02)
 # net-libs/libgadu is not keyworded
 net-im/pidgin gadu
 
 # Jeroen Roovers <jer@gentoo.org> (2020-01-28)
 # sys-apps/systemd is not stable
-net-analyzer/wireshark sdjournal
+# media-libs/libilbc has not been ported to HPPA
+net-analyzer/wireshark ilbc sdjournal
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2020-01-26)
 # media-libs/libheif is not keyworded
@@ -135,14 +178,6 @@ sys-libs/glibc systemtap
 app-forensics/sleuthkit java
 
 # Michał Górny <mgorny@gentoo.org> (2017-08-08)
-# Required VIDEO_CARDS=i965/radeonsi, both masked in this profile.
-media-libs/mesa vulkan vulkan-overlay
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-08)
-# Requires USE=redis that is masked in this profile.
-mail-filter/pyzor test
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-08)
 # Requires USE=systemd that is masked in this profile.
 net-wireless/bluez user-session
 
@@ -153,7 +188,8 @@ net-libs/gnutls test-full
 # Robin H. Johnson <robbat2@gentoo.org> (2017-08-05)
 # Upstream Git is switching to PCRE2 w/ JIT.
 # This is not available on some arches, where a fallback to PCRE1 without JIT is used.
-dev-vcs/git pcre-jit
+# Since >=dev-vcs/git-2.31.0 pcre1 support has been dropped from git.
+<dev-vcs/git-2.31.0 pcre-jit
 
 # Michał Górny <mgorny@gentoo.org> (2017-06-28)
 # app-misc/dtach is not keyworded, and tests are restricted anyway, so
@@ -194,10 +230,6 @@ net-analyzer/rrdtool rados
 # Contact us if you want or have an HPPA cluster with dev-db/mariadb
 # (bug #544378)
 dev-db/mariadb galera
-
-# Mike Frysinger <vapier@gentoo.org> (2015-03-16)
-# Needs sci-physics/bullet tested #499974
-dev-libs/efl physics
 
 # Jeroen Roovers <jer@gentoo.org> (2015-02-02)
 # dev-python/gevent requires dev-python/greenlet which has not been ported to
@@ -300,10 +332,6 @@ media-sound/mpd fluidsynth
 # cpudetection and custom-cpuopts does not apply
 # to HPPA (bug #234629)
 media-video/mplayer cpudetection
-
-# Jeroen Roovers <jer@gentoo.org> (2008-09-16)
-# app-text/xindy needs dev-lisp/clisp and clisp does not build (bug #229217)
-app-text/texlive xindy
 
 # Mart Raudsepp <leio@gentoo.org> (2008-04-02)
 # media-plugins/gst-plugins-{dvb,fluendo-mpegdemux,bad} not keyworded

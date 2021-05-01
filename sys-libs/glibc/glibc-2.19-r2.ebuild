@@ -1,10 +1,12 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit prefix eutils toolchain-funcs flag-o-matic gnuconfig \
-	multilib systemd multiprocessing
+TMPFILES_OPTIONAL=1
+
+inherit prefix toolchain-funcs flag-o-matic gnuconfig \
+	multilib systemd multiprocessing tmpfiles
 
 DESCRIPTION="GNU libc C library"
 HOMEPAGE="https://www.gnu.org/software/libc/"
@@ -717,6 +719,7 @@ src_prepare() {
 
 	eapply "${FILESDIR}"/2.19/glibc-2.19-kernel-2.6.16-compat.patch
 	eapply "${FILESDIR}"/2.19/glibc-2.19-kernel-2.6.16-hide-pipe2.patch
+	eapply "${FILESDIR}"/2.19/glibc-2.19-gcc-10.patch
 
 	cd "${WORKDIR}"
 	find . -name configure -exec touch {} +
@@ -1177,7 +1180,7 @@ glibc_do_src_install() {
 		sed -i "${nscd_args[@]}" "${ED}"/etc/init.d/nscd
 
 		systemd_dounit nscd/nscd.service
-		systemd_newtmpfilesd nscd/nscd.tmpfiles nscd.conf
+		newtmpfiles nscd/nscd.tmpfiles nscd.conf
 	else
 		# Do this since extra/etc/*.conf above might have nscd.conf.
 		rm -f "${ED}"/etc/nscd.conf

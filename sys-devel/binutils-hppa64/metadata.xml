@@ -9,10 +9,8 @@
 		<email>toolchain@gentoo.org</email>
 		<name>Gentoo Toolchain Project</name>
 	</maintainer>
-	<longdescription>
-	binutils for 64bit kernel on hppa.
-	</longdescription>
 	<use>
+		<flag name="cet">Enable Intel Control-flow Enforcement Technology.</flag>
 		<flag name="default-gold">Set ld to point to ld.gold instead of ld.bfd</flag>
 		<flag name="gold">Build ld.gold linker</flag>
 		<flag name="plugins">Enable plugin support in tools</flag>

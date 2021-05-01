@@ -1,10 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PYTHON_COMPAT=( python3_7 )
-inherit distutils-r1 eutils linux-info
+DISTUTILS_USE_SETUPTOOLS=rdepend
+inherit distutils-r1 linux-info
 
 DESCRIPTION="Cinder is the OpenStack Block storage service, a spin out of nova-volumes"
 HOMEPAGE="https://launchpad.net/cinder"
@@ -28,8 +29,7 @@ REQUIRED_USE="|| ( mysql postgres sqlite ) iscsi? ( tgt ) infiniband? ( rdma )"
 
 CDEPEND=">=dev-python/pbr-2.0.0[${PYTHON_USEDEP}]
 	!~dev-python/pbr-2.1.0"
-DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]
-	${CDEPEND}
+DEPEND="${CDEPEND}
 	app-admin/sudo"
 
 #	>=dev-python/oauth2client-1.5.0[${PYTHON_USEDEP}]  # do not include, upstream depricated

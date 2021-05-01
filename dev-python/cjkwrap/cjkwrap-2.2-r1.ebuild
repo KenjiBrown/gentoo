@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{7..9} )
 inherit distutils-r1
 
 DESCRIPTION="A library for wrapping and filling UTF-8 CJK text"
@@ -12,4 +12,4 @@ SRC_URI="https://github.com/fgallaire/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 
 LICENSE="LGPL-3+"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~arm64 x86"

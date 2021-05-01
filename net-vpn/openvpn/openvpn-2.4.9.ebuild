@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,9 +11,9 @@ HOMEPAGE="https://openvpn.net/"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~x86-macos"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 ~sparc x86 ~amd64-linux ~x86-linux"
 
-IUSE="down-root examples inotify iproute2 libressl lz4 +lzo mbedtls pam"
+IUSE="down-root examples inotify iproute2 +lz4 +lzo mbedtls pam"
 IUSE+=" pkcs11 +plugins selinux +ssl systemd test userland_BSD"
 
 RESTRICT="!test? ( test )"
@@ -29,10 +29,7 @@ CDEPEND="
 	)
 	pam? ( sys-libs/pam )
 	ssl? (
-		!mbedtls? (
-			!libressl? ( >=dev-libs/openssl-0.9.8:0= )
-			libressl? ( dev-libs/libressl:0= )
-		)
+		!mbedtls? ( >=dev-libs/openssl-0.9.8:0= )
 		mbedtls? ( net-libs/mbedtls:= )
 	)
 	lz4? ( app-arch/lz4 )
@@ -69,7 +66,7 @@ src_configure() {
 		myeconfargs+=(
 			$(use_with ssl crypto-library $(usex mbedtls mbedtls openssl))
 		)
-		if use libressl || ! use mbedtls; then
+		if ! use mbedtls; then
 			myeconfargs+=(
 				$(use_enable pkcs11)
 			)
@@ -128,19 +125,35 @@ pkg_postinst() {
 		elog "http://tuntaposx.sourceforge.net"
 	fi
 
-	elog "The openvpn init script expects to find the configuration file"
-	elog "openvpn.conf in /etc/openvpn along with any extra files it may need."
-	elog ""
-	elog "To create more VPNs, simply create a new .conf file for it and"
-	elog "then create a symlink to the openvpn init script from a link called"
-	elog "openvpn.newconfname - like so"
-	elog "   cd /etc/openvpn"
-	elog "   ${EDITOR##*/} foo.conf"
-	elog "   cd /etc/init.d"
-	elog "   ln -s openvpn openvpn.foo"
-	elog ""
-	elog "You can then treat openvpn.foo as any other service, so you can"
-	elog "stop one vpn and start another if you need to."
+	if systemd_is_booted ||  has_version sys-apps/systemd; then
+		elog "In order to use OpenVPN with systemd please use the correct systemd service file."
+		elog  ""
+		elog "server:"
+		elog ""
+		elog "- Place your server configuration file in /etc/openvpn/server"
+		elog "- Use the openvpn-server@.service like so"
+		elog "systemctl start openvpn-server@{Server-config}"
+		elog ""
+		elog "client:"
+		elog ""
+		elog "- Place your client configuration file in /etc/openvpn/client"
+		elog "- Use the openvpn-client@.service like so:"
+		elog "systemctl start openvpn-client@{Client-config}"
+	else
+		elog "The openvpn init script expects to find the configuration file"
+		elog "openvpn.conf in /etc/openvpn along with any extra files it may need."
+		elog ""
+		elog "To create more VPNs, simply create a new .conf file for it and"
+		elog "then create a symlink to the openvpn init script from a link called"
+		elog "openvpn.newconfname - like so"
+		elog "	 cd /etc/openvpn"
+		elog "	 ${EDITOR##*/} foo.conf"
+		elog "	 cd /etc/init.d"
+		elog "	 ln -s openvpn openvpn.foo"
+		elog ""
+		elog "You can then treat openvpn.foo as any other service, so you can"
+		elog "stop one vpn and start another if you need to."
+	fi
 
 	if grep -Eq "^[ \t]*(up|down)[ \t].*" "${ROOT}/etc/openvpn"/*.conf 2>/dev/null ; then
 		ewarn ""

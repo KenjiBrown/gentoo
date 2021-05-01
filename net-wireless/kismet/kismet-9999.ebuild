@@ -1,11 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 
-inherit autotools eutils multilib user python-single-r1 udev
+inherit autotools multilib python-single-r1 udev systemd
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://www.kismetwireless.net/git/${PN}.git"
@@ -38,12 +38,15 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 CDEPEND="
 	${PYTHON_DEPS}
+	acct-user/kismet
+	acct-group/kismet
 	networkmanager? ( net-misc/networkmanager:= )
 	dev-libs/glib:=
 	dev-libs/elfutils:=
 	sys-libs/zlib:=
 	dev-db/sqlite:=
-	net-libs/libmicrohttpd
+	net-libs/libmicrohttpd:=
+	net-libs/libwebsockets:=[client]
 	kernel_linux? ( sys-libs/libcap
 			dev-libs/libnl:3
 			net-libs/libpcap
@@ -53,6 +56,7 @@ CDEPEND="
 	dev-libs/protobuf:=
 	$(python_gen_cond_dep '
 		dev-python/protobuf-python[${PYTHON_MULTI_USEDEP}]
+		dev-python/websockets[${PYTHON_MULTI_USEDEP}]
 	')
 	sys-libs/ncurses:=
 	lm-sensors? ( sys-apps/lm-sensors )
@@ -62,6 +66,8 @@ CDEPEND="
 	"
 
 DEPEND="${CDEPEND}
+	dev-libs/boost
+	dev-libs/libfmt
 	virtual/pkgconfig
 "
 
@@ -83,9 +89,26 @@ src_prepare() {
 	sed -i -e "s:^\(logtemplate\)=\(.*\):\1=/tmp/\2:" \
 		conf/kismet_logging.conf || die
 
+	#this was added to quiet macosx builds but it makes gcc builds noisier
+	sed -i -e 's#-Wno-unknown-warning-option ##g' Makefile.inc.in || die
+
+	#sed -i -e 's#root#kismet#g' packaging/systemd/kismet.service.in
+
+	rm -r boost || die
+	rm -r fmt || die
+
+	#dev-libs/jsoncpp
+	#rm -r json || die
+	#sed -i 's#"json/json.h"#<json/json.h>#' jsoncpp.cc kis_net_beast_httpd.h \
+	#	log_tools/kismetdb_clean.cc log_tools/kismetdb_dump_devices.cc \
+	#	log_tools/kismetdb_statistics.cc log_tools/kismetdb_to_gpx.cc \
+	#	log_tools/kismetdb_to_kml.cc log_tools/kismetdb_to_pcap.cc \
+	#	log_tools/kismetdb_to_wiglecsv.cc trackedcomponent.h \
+	#	trackedelement.h trackedelement_workers.h
+
 	# Don't strip and set correct mangrp
 	sed -i -e 's| -s||g' \
-		-e 's|@mangrp@|root|g' Makefile.in
+		-e 's|@mangrp@|root|g' Makefile.in || die
 
 	eapply_user
 
@@ -121,11 +144,11 @@ src_install() {
 	dodoc CHANGELOG README*
 	newinitd "${FILESDIR}"/${PN}.initd-r3 kismet
 	newconfd "${FILESDIR}"/${PN}.confd-r2 kismet
+	systemd_dounit packaging/systemd/kismet.service
 }
 
 pkg_preinst() {
 	if use suid; then
-		enewgroup kismet
 		fowners root:kismet /usr/bin/kismet_cap_linux_bluetooth
 		fowners root:kismet /usr/bin/kismet_cap_linux_wifi
 		fowners root:kismet /usr/bin/kismet_cap_pcapfile

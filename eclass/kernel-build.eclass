@@ -1,4 +1,4 @@
-# Copyright 2020 Gentoo Authors
+# Copyright 2020-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kernel-build.eclass
@@ -32,9 +32,12 @@ case "${EAPI:-0}" in
 		;;
 esac
 
-inherit savedconfig toolchain-funcs kernel-install
+PYTHON_COMPAT=( python3_{7..9} )
+
+inherit python-any-r1 savedconfig toolchain-funcs kernel-install
 
 BDEPEND="
+	${PYTHON_DEPS}
 	sys-devel/bc
 	sys-devel/flex
 	virtual/libelf
@@ -117,7 +120,7 @@ kernel-build_src_test() {
 
 	local ver="${PV}${KV_LOCALVERSION}"
 	kernel-install_test "${ver}" \
-		"${WORKDIR}/build/$(kernel-install_get_image_path)" \
+		"${WORKDIR}/build/$(dist-kernel_get_image_path)" \
 		"${T}/lib/modules/${ver}"
 }
 
@@ -147,6 +150,11 @@ kernel-build_src_install() {
 	mv include scripts "${ED}/usr/src/linux-${ver}/" || die
 	mv "arch/${kern_arch}/include" \
 		"${ED}/usr/src/linux-${ver}/arch/${kern_arch}/" || die
+	# some arches need module.lds linker script to build external modules
+	if [[ -f arch/${kern_arch}/kernel/module.lds ]]; then
+		insinto "/usr/src/linux-${ver}/arch/${kern_arch}/kernel"
+		doins "arch/${kern_arch}/kernel/module.lds"
+	fi
 
 	# remove everything but Makefile* and Kconfig*
 	find -type f '!' '(' -name 'Makefile*' -o -name 'Kconfig*' ')' \
@@ -168,8 +176,11 @@ kernel-build_src_install() {
 	# install the kernel and files needed for module builds
 	insinto "/usr/src/linux-${ver}"
 	doins build/{System.map,Module.symvers}
-	local image_path=$(kernel-install_get_image_path)
+	local image_path=$(dist-kernel_get_image_path)
 	cp -p "build/${image_path}" "${ED}/usr/src/linux-${ver}/${image_path}" || die
+
+	# building modules fails with 'vmlinux has no symtab?' if stripped
+	use ppc64 && dostrip -x "/usr/src/linux-${ver}/${image_path}"
 
 	# strip empty directories
 	find "${D}" -type d -empty -exec rmdir {} + || die
@@ -187,6 +198,38 @@ kernel-build_src_install() {
 kernel-build_pkg_postinst() {
 	kernel-install_pkg_postinst
 	savedconfig_pkg_postinst
+}
+
+# @FUNCTION: kernel-build_merge_configs
+# @USAGE: [distro.config...]
+# @DESCRIPTION:
+# Merge the config files specified as arguments (if any) into
+# the '.config' file in the current directory, then merge
+# any user-supplied configs from ${BROOT}/etc/kernel/config.d/*.config.
+# The '.config' file must exist already and contain the base
+# configuration.
+kernel-build_merge_configs() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ -f .config ]] || die "${FUNCNAME}: .config does not exist"
+	has .config "${@}" &&
+		die "${FUNCNAME}: do not specify .config as parameter"
+
+	local shopt_save=$(shopt -p nullglob)
+	shopt -s nullglob
+	local user_configs=( "${BROOT}"/etc/kernel/config.d/*.config )
+	shopt -u nullglob
+
+	if [[ ${#user_configs[@]} -gt 0 ]]; then
+		elog "User config files are being applied:"
+		local x
+		for x in "${user_configs[@]}"; do
+			elog "- ${x}"
+		done
+	fi
+
+	./scripts/kconfig/merge_config.sh -m -r \
+		.config "${@}" "${user_configs[@]}" || die
 }
 
 _KERNEL_BUILD_ECLASS=1

@@ -1,11 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 SSL_CERT_MANDATORY=1
 
-inherit eutils pam rebar ssl-cert systemd
+inherit eutils pam rebar ssl-cert systemd tmpfiles
 
 DESCRIPTION="Robust, scalable and extensible XMPP server"
 HOMEPAGE="https://www.ejabberd.im/ https://github.com/processone/ejabberd/"
@@ -14,7 +14,7 @@ SRC_URI="https://static.process-one.net/${PN}/downloads/${PV}/${P}.tgz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~ia64 ~ppc ~sparc ~x86"
+KEYWORDS="amd64 ~arm ~ia64 ~sparc x86"
 REQUIRED_USE="mssql? ( odbc )"
 # TODO: Add 'tools' flag.
 IUSE="captcha debug full-xml hipe ldap mssql mysql odbc pam postgres redis
@@ -251,7 +251,7 @@ src_install() {
 	newconfd "${FILESDIR}/${PN}.confd" "${PN}"
 	newinitd "${FILESDIR}/${PN}.initd" "${PN}"
 	systemd_dounit "${PN}.service"
-	systemd_dotmpfilesd "${FILESDIR}/${PN}.tmpfiles.conf"
+	dotmpfiles "${FILESDIR}/${PN}.tmpfiles.conf"
 
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}/${PN}.logrotate" "${PN}"

@@ -4,7 +4,7 @@
 EAPI=6
 
 DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( python{3_6,3_7,3_8} )
+PYTHON_COMPAT=( python{3_7,3_8} )
 
 inherit distutils-r1
 
@@ -19,7 +19,7 @@ fi
 
 DESCRIPTION="Python module to get or set either PT_PAX and/or XATTR_PAX flags"
 HOMEPAGE="https://dev.gentoo.org/~blueness/elfix/
-	https://www.gentoo.org/proj/en/hardened/pax-quickstart.xml"
+	https://wiki.gentoo.org/wiki/Project:Hardened/PaX_Quickstart"
 
 LICENSE="GPL-3"
 SLOT="0"

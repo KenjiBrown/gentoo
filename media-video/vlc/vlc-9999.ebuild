@@ -1,7 +1,9 @@
-# Copyright 2000-2020 Gentoo Authors
+# Copyright 2000-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
+LUA_COMPAT=( lua5-{1..2} )
 
 MY_PV="${PV/_/-}"
 MY_PV="${MY_PV/-beta/-test}"
@@ -21,7 +23,7 @@ else
 	fi
 	KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 -sparc ~x86"
 fi
-inherit autotools flag-o-matic toolchain-funcs virtualx xdg
+inherit autotools flag-o-matic lua-single toolchain-funcs virtualx xdg
 
 DESCRIPTION="Media player and framework with support for most multimedia files and streaming"
 HOMEPAGE="https://www.videolan.org/vlc/"
@@ -29,16 +31,15 @@ HOMEPAGE="https://www.videolan.org/vlc/"
 LICENSE="LGPL-2.1 GPL-2"
 SLOT="0/12-9" # vlc - vlccore
 
-IUSE="a52 alsa aom archive aribsub bidi bluray cddb chromaprint chromecast
-	dav1d dbus dc1394 debug directx dts +dvbpsi dvd +encode faad fdk +ffmpeg flac
-	fluidsynth fontconfig +gcrypt gme gnome-keyring gstreamer ieee1394 jack jpeg kate kms
-	libass libcaca libnotify libplacebo +libsamplerate libtar libtiger linsys lirc
-	live lua macosx-notifications mad matroska modplug mp3 mpeg mtp musepack ncurses
-	nfs ogg omxil optimisememory opus png projectm pulseaudio +qt5 rdp
-	run-as-root samba sdl-image sftp shout sid skins soxr speex srt ssl svg taglib
-	theora tremor truetype twolame udev upnp vaapi v4l vdpau vnc vorbis vpx wayland +X
-	x264 x265 xml zeroconf zvbi cpu_flags_arm_neon cpu_flags_ppc_altivec cpu_flags_x86_mmx
-	cpu_flags_x86_sse
+IUSE="a52 alsa aom archive aribsub bidi bluray cddb chromaprint chromecast dav1d dbus
+	dc1394 debug directx dts +dvbpsi dvd +encode faad fdk +ffmpeg flac fluidsynth
+	fontconfig +gcrypt gme gnome-keyring gstreamer +gui ieee1394 jack jpeg kate kms
+	libass libcaca libnotify libplacebo +libsamplerate libtar libtiger linsys lirc live
+	loudness lua macosx-notifications mad matroska modplug mp3 mpeg mtp musepack ncurses
+	nfs ogg omxil optimisememory opus png projectm pulseaudio rdp run-as-root samba
+	sdl-image sftp shout sid skins soxr speex srt ssl svg taglib theora tremor truetype
+	twolame udev upnp vaapi v4l vdpau vnc vorbis vpx wayland +X x264 x265 xml zeroconf
+	zvbi cpu_flags_arm_neon cpu_flags_ppc_altivec cpu_flags_x86_mmx cpu_flags_x86_sse
 "
 REQUIRED_USE="
 	chromecast? ( encode )
@@ -47,7 +48,8 @@ REQUIRED_USE="
 	libcaca? ( X )
 	libtar? ( skins )
 	libtiger? ( kate )
-	skins? ( qt5 truetype X xml )
+	lua? ( ${LUA_REQUIRED_USE} )
+	skins? ( gui truetype X xml )
 	ssl? ( gcrypt )
 	vaapi? ( ffmpeg X )
 	vdpau? ( ffmpeg X )
@@ -55,6 +57,7 @@ REQUIRED_USE="
 BDEPEND="
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
+	lua? ( ${LUA_DEPS} )
 	amd64? ( dev-lang/yasm )
 	x86? ( dev-lang/yasm )
 "
@@ -79,9 +82,9 @@ RDEPEND="
 	chromaprint? ( media-libs/chromaprint:= )
 	chromecast? (
 		>=dev-libs/protobuf-2.5.0:=
-		>=net-libs/libmicrodns-0.0.9:=
+		>=net-libs/libmicrodns-0.1.2:=
 	)
-	dav1d? ( media-libs/dav1d:= )
+	dav1d? ( >=media-libs/dav1d-0.5.0:= )
 	dbus? ( sys-apps/dbus )
 	dc1394? (
 		media-libs/libdc1394:2
@@ -109,6 +112,16 @@ RDEPEND="
 	gme? ( media-libs/game-music-emu )
 	gnome-keyring? ( app-crypt/libsecret )
 	gstreamer? ( >=media-libs/gst-plugins-base-1.4.5:1.0 )
+	gui? (
+		dev-qt/qtcore:5
+		dev-qt/qtgui:5
+		dev-qt/qtsvg:5
+		dev-qt/qtwidgets:5
+		X? (
+			dev-qt/qtx11extras:5
+			x11-libs/libX11
+		)
+	)
 	ieee1394? (
 		sys-libs/libavc1394
 		sys-libs/libraw1394
@@ -125,7 +138,6 @@ RDEPEND="
 	libnotify? (
 		dev-libs/glib:2
 		x11-libs/gdk-pixbuf:2
-		x11-libs/gtk+:3
 		x11-libs/libnotify
 	)
 	libplacebo? ( media-libs/libplacebo )
@@ -135,7 +147,8 @@ RDEPEND="
 	linsys? ( media-libs/zvbi )
 	lirc? ( app-misc/lirc )
 	live? ( media-plugins/live:= )
-	lua? ( >=dev-lang/lua-5.1:0= )
+	loudness? ( >=media-libs/libebur128-1.2.4:= )
+	lua? ( ${LUA_DEPS} )
 	mad? ( media-libs/libmad )
 	matroska? (
 		>=dev-libs/libebml-1.3.6:=
@@ -153,19 +166,9 @@ RDEPEND="
 	png? ( media-libs/libpng:0= )
 	projectm? (
 		media-fonts/dejavu
-		media-libs/libprojectm
+		media-libs/libprojectm:0=
 	)
 	pulseaudio? ( media-sound/pulseaudio )
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtsvg:5
-		dev-qt/qtwidgets:5
-		X? (
-			dev-qt/qtx11extras:5
-			x11-libs/libX11
-		)
-	)
 	rdp? ( >=net-misc/freerdp-2.0.0_rc0:=[client(+)] )
 	samba? ( >=net-fs/samba-4.0.0:0[client,-debug(-)] )
 	sdl-image? ( media-libs/sdl-image )
@@ -182,7 +185,7 @@ RDEPEND="
 		>=media-libs/speex-1.2.0
 		media-libs/speexdsp
 	)
-	srt? ( >=net-libs/srt-1.3.0 )
+	srt? ( >=net-libs/srt-1.4.2 )
 	ssl? ( net-libs/gnutls:= )
 	svg? (
 		gnome-base/librsvg:2
@@ -198,7 +201,7 @@ RDEPEND="
 	)
 	twolame? ( media-sound/twolame )
 	udev? ( virtual/udev )
-	upnp? ( net-libs/libupnp:= )
+	upnp? ( net-libs/libupnp:=[ipv6] )
 	v4l? ( media-libs/libv4l:= )
 	vaapi? ( x11-libs/libva:=[drm,wayland?,X?] )
 	vdpau? ( x11-libs/libvdpau )
@@ -230,11 +233,18 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.0-fix-libtremor-libs.patch # build system
 	"${FILESDIR}"/${PN}-2.2.8-freerdp-2.patch # bug 590164
+	"${FILESDIR}"/${PN}-3.0.11.1-configure_lua_version.patch
 )
 
 DOCS=( AUTHORS THANKS NEWS README doc/fortunes.txt )
 
 S="${WORKDIR}/${MY_P}"
+
+pkg_setup() {
+	if use lua; then
+		lua-single_pkg_setup
+	fi
+}
 
 src_prepare() {
 	xdg_src_prepare # bug 608256
@@ -261,6 +271,9 @@ src_prepare() {
 	# Disable running of vlc-cache-gen, we do that in pkg_postinst
 	sed -e "/test.*build.*host/s/\$(host)/nothanks/" \
 		-i Makefile.am -i bin/Makefile.am || die "Failed to disable vlc-cache-gen"
+
+	# Fix gettext version mismatch errors.
+	sed -i -e s/GETTEXT_VERSION/GETTEXT_REQUIRE_VERSION/ configure.ac || die
 
 	eautoreconf
 
@@ -322,6 +335,7 @@ src_configure() {
 		$(use_enable gme)
 		$(use_enable gnome-keyring secret)
 		$(use_enable gstreamer gst-decode)
+		$(use_enable gui qt)
 		$(use_enable ieee1394 dv1394)
 		$(use_enable jack)
 		$(use_enable jpeg)
@@ -337,6 +351,7 @@ src_configure() {
 		$(use_enable linsys)
 		$(use_enable lirc)
 		$(use_enable live live555)
+		$(use_enable loudness ebur128)
 		$(use_enable lua)
 		$(use_enable macosx-notifications osx-notifications)
 		$(use_enable mad)
@@ -355,7 +370,6 @@ src_configure() {
 		$(use_enable png)
 		$(use_enable projectm)
 		$(use_enable pulseaudio pulse)
-		$(use_enable qt5 qt)
 		$(use_enable rdp freerdp)
 		$(use_enable run-as-root)
 		$(use_enable samba smbclient)
@@ -396,7 +410,6 @@ src_configure() {
 		--disable-asdcp
 		--disable-coverage
 		--disable-cprof
-		--disable-crystalhd
 		--disable-decklink
 		--disable-gles2
 		--disable-goom
@@ -432,6 +445,12 @@ src_configure() {
 	# VLC now requires C++11 after commit 4b1c9dcdda0bbff801e47505ff9dfd3f274eb0d8
 	append-cxxflags -std=c++11
 
+	if use omxil; then
+		# bug #723006
+		# https://trac.videolan.org/vlc/ticket/24617
+		append-cflags -fcommon
+	fi
+
 	# FIXME: Needs libresid-builder from libsidplay:2 which is in another directory...
 	append-ldflags "-L/usr/$(get_libdir)/sidplay/builders/"
 
@@ -465,16 +484,16 @@ src_test() {
 
 src_install() {
 	default
-	find "${D}" -name '*.la' -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }
 
 pkg_postinst() {
-	if [[ -z ${ROOT} ]] && [[ -x "/usr/libexec/vlc/vlc-cache-gen" ]] ; then
-		einfo "Running /usr/libexec/vlc/vlc-cache-gen on /usr/libexec/vlc/plugins/"
-		"/usr/libexec/vlc/vlc-cache-gen" "/usr/libexec/vlc/plugins/"
+	if [[ -z "${ROOT}" ]] && [[ -x "${EROOT}/usr/libexec/vlc/vlc-cache-gen" ]] ; then
+		einfo "Running ${EROOT}/usr/libexec/vlc/vlc-cache-gen on ${EROOT}/usr/libexec/vlc/plugins/"
+		"${EROOT}/usr/libexec/vlc/vlc-cache-gen" "${EROOT}/usr/libexec/vlc/plugins/"
 	else
-		ewarn "We cannot run vlc-cache-gen (most likely ROOT!=/)"
-		ewarn "Please run /usr/libexec/vlc/vlc-cache-gen manually"
+		ewarn "We cannot run vlc-cache-gen (most likely ROOT != /)"
+		ewarn "Please run ${EROOT}/usr/libexec/vlc/vlc-cache-gen manually"
 		ewarn "If you do not do it, vlc will take a long time to load."
 	fi
 
@@ -482,8 +501,8 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	if [[ -e /usr/libexec/vlc/plugins/plugins.dat ]]; then
-		rm /usr/libexec/vlc/plugins/plugins.dat || die "Failed to rm plugins.dat"
+	if [[ -e "${EROOT}"/usr/libexec/vlc/plugins/plugins.dat ]]; then
+		rm "${EROOT}"/usr/libexec/vlc/plugins/plugins.dat || die "Failed to rm plugins.dat"
 	fi
 
 	xdg_pkg_postrm

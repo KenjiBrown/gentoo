@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: user.eclass
@@ -6,12 +6,26 @@
 # base-system@gentoo.org (Linux)
 # Michał Górny <mgorny@gentoo.org> (NetBSD)
 # @BLURB: user management in ebuilds
+# @DEPRECATED: acct-user/acct-group packages
 # @DESCRIPTION:
 # The user eclass contains a suite of functions that allow ebuilds
 # to quickly make sure users in the installed system are sane.
 
 if [[ -z ${_USER_ECLASS} ]]; then
 _USER_ECLASS=1
+
+case ${EAPI:-0} in
+	0|1|2|3|4|5|6|7) ;;
+	*)
+		if [[ ${CATEGORY} != acct-* ]]; then
+			eerror "In EAPI ${EAPI}, packages must not inherit user.eclass"
+			eerror "unless they are in the acct-user or acct-group category."
+			eerror "Migrate your package to GLEP 81 user/group management,"
+			eerror "or inherit user-info if you need only the query functions."
+			die "Invalid \"inherit user\" in EAPI ${EAPI}"
+		fi
+		;;
+esac
 
 inherit user-info
 
@@ -86,7 +100,7 @@ enewuser() {
 	# get the username
 	local euser=$1; shift
 	if [[ -z ${euser} ]] ; then
-		eerror "No username specified !"
+		eerror "No username specified!"
 		die "Cannot call enewuser without a username"
 	fi
 
@@ -108,7 +122,7 @@ enewuser() {
 				euid="next"
 			fi
 		else
-			eerror "Userid given but is not greater than 0 !"
+			eerror "Userid given but is not greater than 0!"
 			die "${euid} is not a valid UID"
 		fi
 	else
@@ -128,7 +142,7 @@ enewuser() {
 	local eshell=$1; shift
 	if [[ ! -z ${eshell} ]] && [[ ${eshell} != "-1" ]] ; then
 		if [[ ! -e ${ROOT}${eshell} ]] ; then
-			eerror "A shell was specified but it does not exist !"
+			eerror "A shell was specified but it does not exist!"
 			die "${eshell} does not exist in ${ROOT}"
 		fi
 		if [[ ${eshell} == */false || ${eshell} == */nologin ]] ; then
@@ -240,7 +254,7 @@ enewgroup() {
 	# get the group
 	local egroup=$1; shift
 	if [[ -z ${egroup} ]] ; then
-		eerror "No group specified !"
+		eerror "No group specified!"
 		die "Cannot call enewgroup without a group"
 	fi
 
@@ -259,7 +273,7 @@ enewgroup() {
 				egid="next available; requested gid taken"
 			fi
 		else
-			eerror "Groupid given but is not greater than 0 !"
+			eerror "Groupid given but is not greater than 0!"
 			die "${egid} is not a valid GID"
 		fi
 	else
@@ -325,7 +339,7 @@ esethome() {
 	# get the username
 	local euser=$1; shift
 	if [[ -z ${euser} ]] ; then
-		eerror "No username specified !"
+		eerror "No username specified!"
 		die "Cannot call esethome without a username"
 	fi
 
@@ -338,7 +352,7 @@ esethome() {
 	# handle homedir
 	local ehome=$1; shift
 	if [[ -z ${ehome} ]] ; then
-		eerror "No home directory specified !"
+		eerror "No home directory specified!"
 		die "Cannot call esethome without a home directory or '-1'"
 	fi
 
@@ -394,7 +408,7 @@ esetshell() {
 	# get the username
 	local euser=$1; shift
 	if [[ -z ${euser} ]] ; then
-		eerror "No username specified !"
+		eerror "No username specified!"
 		die "Cannot call esetshell without a username"
 	fi
 
@@ -407,7 +421,7 @@ esetshell() {
 	# handle shell
 	local eshell=$1; shift
 	if [[ -z ${eshell} ]] ; then
-		eerror "No shell specified !"
+		eerror "No shell specified!"
 		die "Cannot call esetshell without a shell or '-1'"
 	fi
 
@@ -454,7 +468,7 @@ esetcomment() {
 	# get the username
 	local euser=$1; shift
 	if [[ -z ${euser} ]] ; then
-		eerror "No username specified !"
+		eerror "No username specified!"
 		die "Cannot call esetcomment without a username"
 	fi
 
@@ -467,7 +481,7 @@ esetcomment() {
 	# handle comment
 	local ecomment=$1; shift
 	if [[ -z ${ecomment} ]] ; then
-		eerror "No comment specified !"
+		eerror "No comment specified!"
 		die "Cannot call esetcomment without a comment"
 	fi
 

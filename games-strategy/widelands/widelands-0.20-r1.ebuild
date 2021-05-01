@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
 
 inherit desktop cmake python-any-r1
 
@@ -32,7 +32,6 @@ RDEPEND="
 	sys-libs/zlib:=[minizip]"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
-	dev-lang/lua:0
 "
 BDEPEND="
 	sys-devel/gettext

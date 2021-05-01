@@ -1,8 +1,8 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 
 inherit elisp-common autotools python-single-r1 toolchain-funcs xdg-utils
 
@@ -20,44 +20,48 @@ HOMEPAGE="http://lilypond.org/"
 
 LICENSE="GPL-3 FDL-1.3"
 SLOT="0"
-IUSE="debug emacs guile2 profile vim-syntax"
+LANG_USE="l10n_ca l10n_cs l10n_de l10n_en l10n_fr l10n_hu l10n_it l10n_ja l10n_nl l10n_pt l10n_zh"
+IUSE="debug doc emacs profile vim-syntax ${LANG_USE}"
+unset LANG_USE
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 BDEPEND="
-	>=dev-texlive/texlive-metapost-2020
-	>=sys-apps/texinfo-4.11
-	>=sys-devel/bison-2.0
+	dev-texlive/texlive-metapost
+	sys-apps/texinfo
+	sys-devel/bison
 	sys-devel/flex
 	virtual/pkgconfig
+	doc? ( app-text/texi2html )
 "
-RDEPEND=">=app-text/ghostscript-gpl-8.15
-	>=dev-scheme/guile-1.8.2:12=[deprecated,regex]
+RDEPEND="app-text/ghostscript-gpl
+	dev-scheme/guile:12=[deprecated,regex]
 	media-fonts/tex-gyre
 	media-libs/fontconfig
 	media-libs/freetype:2
-	>=x11-libs/pango-1.12.3
+	x11-libs/pango
 	emacs? ( >=app-editors/emacs-23.1:* )
-	guile2? ( >=dev-scheme/guile-2.2:12 )
-	!guile2? (
-		>=dev-scheme/guile-1.8.2:12=[deprecated,regex]
-		<dev-scheme/guile-2.0:12
-	)
 	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}
 	app-text/t1utils
 	dev-lang/perl
 	dev-libs/kpathsea
 	media-gfx/fontforge[png,python]
-	sys-devel/gettext"
-
+	sys-devel/gettext
+	doc? (
+		dev-texlive/texlive-langcyrillic
+		l10n_cs? ( dev-texlive/texlive-xetex )
+		l10n_ja? ( dev-texlive/texlive-langjapanese )
+		l10n_zh? ( dev-texlive/texlive-langchinese )
+	)
+"
 # Correct output data for tests isn't bundled with releases
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-2.21.1-fix-font-size.patch
+	"${FILESDIR}"/${PN}-2.23.0-fix-font-size.patch
 )
 
-DOCS=( DEDICATION HACKING README.txt ROADMAP )
+DOCS=( DEDICATION HACKING README.md ROADMAP )
 
 src_prepare() {
 	default
@@ -78,24 +82,27 @@ src_prepare() {
 }
 
 src_configure() {
-	# documentation generation currently not supported since it requires a newer
-	# version of texi2html than is currently in the tree
+	# fix hardcoded `ar`
+	sed -i "s/AR=ar/AR=$(tc-getAR)/g" flower/GNUmakefile || die "Failed to fix ar command"
 
 	local myeconfargs=(
 		--with-texgyre-dir=/usr/share/fonts/tex-gyre
-		--disable-documentation
 		--disable-optimising
 		--disable-pipe
 		$(use_enable debug debugging)
+		$(use_enable doc documentation)
 		$(use_enable profile profiling)
 	)
+
 	export VARTEXFONTS="${T}/fonts"  # https://bugs.gentoo.org/692010
 
-	econf "${myeconfargs[@]}"
+	econf "${myeconfargs[@]}" AR="$(tc-getAR)"
 }
 
 src_compile() {
 	default
+
+	use doc && emake LANGS="${L10N}" doc info
 
 	if use emacs ; then
 		elisp-compile elisp/lilypond-{font-lock,indent,mode,what-beat}.el \
@@ -105,6 +112,8 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" vimdir=/usr/share/vim/vimfiles install
+
+	use doc && emake DESTDIR="${D}" install-doc
 
 	# remove elisp files since they are in the wrong directory
 	rm -r "${ED}"/usr/share/emacs || die

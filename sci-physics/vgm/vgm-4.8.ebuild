@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,7 +8,6 @@ inherit cmake
 if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/vmc-project/${PN}.git"
-	KEYWORDS=""
 else
 	MY_PV=$(ver_rs 1- -)
 	SRC_URI="https://github.com/vmc-project/${PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
@@ -31,7 +30,10 @@ RDEPEND="
 	root? ( >=sci-physics/root-6.14:=[c++11?,c++14?,c++17?] )"
 DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen[dot] )
-	test? ( sci-physics/geant-vmc[g4root] )"
+	test? (
+		sci-physics/geant[gdml]
+		sci-physics/geant-vmc[g4root]
+	)"
 RESTRICT="
 	!geant4? ( test )
 	!root? ( test )

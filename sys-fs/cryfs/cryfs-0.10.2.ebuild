@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7..9} )
 inherit cmake flag-o-matic linux-info python-any-r1
 
 if [[ ${PV} == 9999 ]] ; then
@@ -11,7 +11,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/cryfs/cryfs"
 else
 	SRC_URI="https://github.com/cryfs/cryfs/releases/download/${PV}/${P}.tar.xz"
-	KEYWORDS="amd64 ~arm arm64 x86"
+	KEYWORDS="amd64 ~arm arm64 ~ppc64 x86"
 	S="${WORKDIR}"
 fi
 
@@ -73,6 +73,7 @@ src_configure() {
 		-DBUILD_TESTING=$(usex test)
 	)
 	use custom-optimization || append-flags -O3
+	use debug || append-flags -DNDEBUG
 
 	cmake_src_configure
 }

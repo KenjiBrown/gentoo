@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
 WEBAPP_OPTIONAL=yes
 WEBAPP_MANUAL_SLOT=yes
 
@@ -129,6 +129,7 @@ PATCHES=(
 	"${FILESDIR}"/${P}-gcc-10.patch # bug 723374
 	"${FILESDIR}"/${P}-fno-common.patch # bug 721048
 	"${FILESDIR}"/${P}-py38.patch
+	"${FILESDIR}"/${P}-freetype-2.10.3-provide-FT_CALLBACK_DEF.patch # bug #751088
 )
 
 RESTRICT="test"
@@ -247,7 +248,7 @@ src_configure() {
 
 	if use python; then
 		mycmakeargs+=(
-			-DVTK_INSTALL_PYTHON_MODULE_DIR="$(python_get_sitedir)"
+			-DVTK_INSTALL_PYTHON_MODULES_DIR="$(python_get_sitedir)"
 			-DPYTHON_INCLUDE_DIR="$(python_get_includedir)"
 			-DPYTHON_LIBRARY="$(python_get_library_path)"
 			-DSIP_PYQT_DIR="${EPREFIX}/usr/share/sip"

@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -14,7 +14,6 @@ if [[ ${PV} == 9999 ]]; then
 else
 	SRC_URI="https://github.com/emersion/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 	#KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
-	KEYWORDS=""
 fi
 
 LICENSE="MIT"
@@ -23,7 +22,7 @@ IUSE="elogind systemd"
 REQUIRED_USE="?? ( elogind systemd )"
 
 DEPEND="
-	>=media-video/pipewire-0.2.9:=
+	>=media-video/pipewire-0.3.2:=
 	dev-libs/wayland
 	>=dev-libs/wayland-protocols-1.14:=
 	elogind? ( >=sys-auth/elogind-237 )
@@ -34,9 +33,9 @@ RDEPEND="
 	sys-apps/xdg-desktop-portal
 "
 BDEPEND="
-	>=media-video/pipewire-0.2.9:=
+	>=media-video/pipewire-0.3.2:=
 	>=dev-libs/wayland-protocols-1.14
-	>=dev-util/meson-0.47.0
+	>=dev-util/meson-0.50.0
 	virtual/pkgconfig
 "
 

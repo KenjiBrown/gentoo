@@ -1,4 +1,4 @@
-# Copyright 2017-2020 Gentoo Authors
+# Copyright 2017-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -8,7 +8,7 @@ CRATES="
 
 MY_PV="${PV//_rc/-rc}"
 # https://bugs.gentoo.org/725962
-PYTHON_COMPAT=( python3_{7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 
 inherit bash-completion-r1 cargo desktop python-any-r1
 
@@ -21,7 +21,7 @@ if [ ${PV} == "9999" ] ; then
 else
 	SRC_URI="https://github.com/alacritty/${PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz
 	$(cargo_crate_uris ${CRATES})"
-	KEYWORDS="~amd64 ~arm64 ~ppc64"
+	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 fi
 
 LICENSE="Apache-2.0 Apache-2.0-with-LLVM-exceptions Boost-1.0 BSD BSD-2 CC0-1.0 FTL ISC MIT MPL-2.0 Unlicense WTFPL-2 ZLIB"
@@ -66,19 +66,20 @@ src_unpack() {
 }
 
 src_configure() {
-	myfeatures=(
+	local myfeatures=(
 		$(usex X x11 '')
 		$(usev wayland)
 	)
+	cargo_src_configure --no-default-features
 }
 
 src_compile() {
 	cd alacritty || die
-	cargo_src_compile ${myfeatures:+--features "${myfeatures[*]}"} --no-default-features
+	cargo_src_compile
 }
 
 src_install() {
-	CARGO_INSTALL_PATH="alacritty" cargo_src_install ${myfeatures:+--features "${myfeatures[*]}"} --no-default-features
+	cargo_src_install --path alacritty
 
 	newman extra/alacritty.man alacritty.1
 
@@ -91,7 +92,7 @@ src_install() {
 	doins extra/completions/_alacritty
 
 	domenu extra/linux/Alacritty.desktop
-	newicon extra/logo/alacritty-term.svg Alacritty.svg
+	newicon extra/logo/compat/alacritty-term.svg Alacritty.svg
 
 	newman extra/alacritty.man alacritty.1
 
@@ -104,12 +105,22 @@ src_install() {
 	local DOCS=(
 		alacritty.yml
 		CHANGELOG.md INSTALL.md README.md
-		docs/{ansicode.txt,escape_support.md}
+		docs/{ansicode.txt,escape_support.md,features.md}
 	)
 	einstalldocs
 }
 
 src_test() {
 	cd alacritty || die
-	cargo_src_test ${myfeatures:+--features "${myfeatures[*]}"} --no-default-features
+	cargo_src_test
+}
+
+pkg_postinst() {
+	if [[ -z ${REPLACING_VERSIONS} ]]; then
+		einfo "Configuration files for ${CATEGORY}/${PN}"
+		einfo "in \$HOME may need to be updated after a version change"
+		einfo ""
+		einfo "An up-to-date sample configuration file can be found at"
+		einfo "${ROOT}/usr/share/doc/${PF}/alacritty.yml.bz2"
+	fi
 }

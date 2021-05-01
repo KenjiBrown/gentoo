@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit autotools libtool multilib toolchain-funcs
+inherit autotools libtool toolchain-funcs
 
 DESCRIPTION="Apache Portable Runtime Library"
 HOMEPAGE="https://apr.apache.org/"
@@ -11,7 +11,7 @@ SRC_URI="mirror://apache/apr/${P}.tar.bz2"
 
 LICENSE="Apache-2.0"
 SLOT="1/${PV%.*}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 s390 sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc elibc_FreeBSD older-kernels-compatibility selinux static-libs +urandom"
 
 CDEPEND="elibc_glibc? ( >=sys-apps/util-linux-2.16 )
@@ -88,7 +88,7 @@ src_configure() {
 	if use urandom; then
 		myconf+=( --with-devrandom=/dev/urandom )
 	elif (( ${CHOST#*-hpux11.} <= 11 )); then
-		: # no /dev/*random on hpux11.11 and before, $PN detects this.
+		: # no /dev/*random on hpux11.11 and before, ${PN} detects this.
 	else
 		myconf+=( --with-devrandom=/dev/random )
 	fi
@@ -138,7 +138,7 @@ src_test() {
 src_install() {
 	default
 
-	# Prallel install breaks since apr-1.5.1
+	# Parallel install breaks since apr-1.5.1
 	#make -j1 DESTDIR="${D}" install || die
 
 	if ! use static-libs; then

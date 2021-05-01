@@ -5,6 +5,10 @@
 		<email>johu@gentoo.org</email>
 		<name>Johannes Huber</name>
 	</maintainer>
+	<maintainer type="person">
+		<email>ajak@gentoo.org</email>
+		<name>John Helmert III</name>
+	</maintainer>
 	<use>
 		<flag name="i3wm">Add support for i3 window manager</flag>
 		<flag name="ipc">Add support for Inter-Process Messaging</flag>

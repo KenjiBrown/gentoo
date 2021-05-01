@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,7 +10,7 @@ inherit perl-module toolchain-funcs
 DESCRIPTION="building, finding and using SDL binaries"
 
 SLOT="0"
-KEYWORDS="~amd64 ~hppa ~x86"
+KEYWORDS="amd64 ~hppa x86"
 
 # File::Fetch, File::Find, Test::More -> dev-lang/perl
 RDEPEND="
@@ -30,10 +30,11 @@ RDEPEND="
 	virtual/perl-File-Temp
 "
 DEPEND="
-	dev-perl/Module-Build
 	media-libs/libsdl
 "
-BDEPEND="${RDEPEND}"
+BDEPEND="${RDEPEND}
+	dev-perl/Module-Build
+"
 
 PERL_RM_FILES=(
 	t/release-pod-{syntax,coverage}.t

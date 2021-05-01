@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,20 +11,18 @@ else
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~x86-linux ~x64-macos"
 fi
 
-inherit prefix
+inherit optfeature prefix
 
 DESCRIPTION="A graphical front-end for GCC's coverage testing tool gcov"
 HOMEPAGE="http://ltp.sourceforge.net/coverage/lcov.php"
 
 LICENSE="GPL-2+"
 SLOT="0"
-IUSE="png"
 
 RDEPEND="
 	dev-lang/perl
 	dev-perl/JSON
 	dev-perl/PerlIO-gzip
-	png? ( dev-perl/GD[png] )
 "
 
 src_prepare() {
@@ -37,5 +35,9 @@ src_prepare() {
 src_compile() { :; }
 
 src_install() {
-	emake PREFIX="${ED}/usr" CFG_DIR="${ED}/etc" install
+	emake -j1 PREFIX="${ED}/usr" CFG_DIR="${ED}/etc" install
+}
+
+pkg_postinst() {
+	optfeature "png output support" dev-perl/GD[png]
 }

@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
 PYTHON_REQ_USE="threads(+)"
 DISTUTILS_OPTIONAL=true
 DISTUTILS_IN_SOURCE_BUILD=true
@@ -72,7 +72,7 @@ src_configure() {
 		$(use_enable ssl encryption)
 		$(use_enable static-libs static)
 		$(use_enable test tests)
-		--with-boost="${EPREFIX}/usr"
+		--with-boost
 		--with-libiconv
 		--enable-logging
 	)

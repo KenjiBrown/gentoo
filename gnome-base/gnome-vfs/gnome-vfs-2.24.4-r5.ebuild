@@ -1,19 +1,18 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-GCONF_DEBUG="no"
-GNOME_TARBALL_SUFFIX="bz2"
-GNOME2_LA_PUNT="yes"
+EAPI=7
 
-inherit autotools eutils gnome2 multilib-minimal virtualx
+GNOME_TARBALL_SUFFIX="bz2"
+GNOME2_EAUTORECONF="yes"
+inherit gnome2 multilib-minimal virtualx
 
 DESCRIPTION="Gnome Virtual Filesystem"
 HOMEPAGE="https://www.gnome.org/"
 
 LICENSE="GPL-2 LGPL-2"
 SLOT="2"
-KEYWORDS="~alpha amd64 arm ~arm64 ~ia64 ~mips ppc ppc64 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm ~arm64 ~ia64 ~mips ppc ppc64 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris ~x86-solaris"
 IUSE="acl gnutls ipv6 kerberos libressl samba ssl zeroconf"
 
 RDEPEND="
@@ -39,7 +38,8 @@ RDEPEND="
 			!gnome-extra/gnome-vfs-sftp ) )
 	zeroconf? ( >=net-dns/avahi-0.6.31-r2[dbus,${MULTILIB_USEDEP}] )
 "
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	dev-util/glib-utils
 	sys-devel/gettext
 	gnome-base/gnome-common
@@ -47,6 +47,8 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	>=dev-util/gtk-doc-am-1.13
 "
+
+DOCS=( "${S}"/{AUTHORS,ChangeLog,HACKING,NEWS,README,TODO} )
 
 PATCHES=(
 	# Allow the Trash on afs filesystems (#106118)
@@ -90,15 +92,6 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.24.4-openssl-1.1.patch
 )
 
-src_prepare() {
-	epatch "${PATCHES[@]}"
-
-	sed -e "s/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/" -i configure.in || die
-
-	eautoreconf
-	gnome2_src_prepare
-}
-
 multilib_src_configure() {
 	local myconf=(
 		--disable-schemas-install
@@ -141,14 +134,9 @@ multilib_src_test() {
 	unset DISPLAY
 	# Fix bug #285706
 	unset XAUTHORITY
-	Xemake check
+	virtx emake check
 }
 
 multilib_src_install() {
 	gnome2_src_install
-}
-
-multilib_src_install_all() {
-	DOCS="AUTHORS ChangeLog HACKING NEWS README TODO"
-	einstalldocs
 }

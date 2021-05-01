@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit bash-completion-r1 eutils linux-info systemd toolchain-funcs
+inherit bash-completion-r1 linux-info optfeature systemd toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
@@ -64,7 +64,7 @@ DOCS=( AUTHORS HACKING NEWS README.md README.generic README.kernel README.module
 QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
-	"${FILESDIR}"/050-gentoo-ldconfig-paths.patch
+	"${FILESDIR}"/gentoo-ldconfig-paths.patch
 )
 
 src_configure() {
@@ -124,9 +124,6 @@ pkg_postinst() {
 		ewarn ""
 	fi
 
-	elog "To get additional features, a number of optional runtime"
-	elog "dependencies may be installed:"
-	elog ""
 	optfeature "Networking support" net-misc/networkmanager
 	optfeature "Legacy networking support" net-misc/curl "net-misc/dhcp[client]" \
 		sys-apps/iproute2 "net-misc/iputils[arping]"

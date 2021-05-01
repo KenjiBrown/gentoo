@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit cmake-utils eutils multilib
+inherit cmake-utils multilib
 
 # deal.II uses its own FindLAPACK.cmake file that calls into the system
 # FindLAPACK.cmake module and does additional internal setup. Do not remove
@@ -17,7 +17,6 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dealii/dealii.git"
 	SRC_URI=""
-	KEYWORDS=""
 else
 	SRC_URI="https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.gz
 		doc? (
@@ -31,8 +30,8 @@ SLOT="0"
 IUSE="
 	adolc assimp arpack cpu_flags_x86_avx cpu_flags_x86_avx512f
 	cpu_flags_x86_sse2 cuda +debug doc +examples ginkgo gmsh +gsl hdf5
-	+lapack metis mpi muparser nanoflann opencascade netcdf p4est petsc
-	scalapack slepc +sparse static-libs sundials symengine +tbb trilinos
+	+lapack metis mpi muparser opencascade p4est petsc
+	scalapack slepc +sparse static-libs sundials symengine trilinos
 "
 
 # TODO: add slepc use flag once slepc is packaged for gentoo-science
@@ -44,6 +43,7 @@ REQUIRED_USE="
 RDEPEND="dev-libs/boost
 	app-arch/bzip2
 	sys-libs/zlib
+	dev-cpp/cpp-taskflow
 	adolc? ( sci-libs/adolc )
 	arpack? ( sci-libs/arpack[mpi=] )
 	assimp? ( media-libs/assimp )
@@ -56,17 +56,14 @@ RDEPEND="dev-libs/boost
 	metis? ( >=sci-libs/parmetis-4 )
 	mpi? ( virtual/mpi )
 	muparser? ( dev-cpp/muParser )
-	nanoflann? ( sci-libs/nanoflann )
-	netcdf? ( sci-libs/netcdf-cxx:0 )
 	opencascade? ( sci-libs/opencascade:* )
 	p4est? ( sci-libs/p4est[mpi] )
 	petsc? ( sci-mathematics/petsc[mpi=] )
 	scalapack? ( sci-libs/scalapack )
 	slepc? ( sci-mathematics/slepc[mpi=] )
 	sparse? ( sci-libs/umfpack )
-	sundials? ( <sci-libs/sundials-4:= )
+	sundials? ( sci-libs/sundials:= )
 	symengine? ( >=sci-libs/symengine-0.4:= )
-	tbb? ( dev-cpp/tbb )
 	trilinos? ( sci-libs/trilinos )"
 
 DEPEND="${RDEPEND}
@@ -82,10 +79,9 @@ src_configure() {
 	local CMAKE_BUILD_TYPE=$(usex debug DebugRelease Release)
 
 	local mycmakeargs=(
-		-DDEAL_II_PACKAGE_VERSION=9999
+		-DDEAL_II_PACKAGE_VERSION="${PV}"
 		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=OFF
 		-DDEAL_II_ALLOW_AUTODETECTION=OFF
-		-DDEAL_II_ALLOW_BUNDLED=OFF
 		-DDEAL_II_ALLOW_PLATFORM_INTROSPECTION=OFF
 		-DDEAL_II_COMPILE_EXAMPLES=OFF
 		-DDEAL_II_DOCHTML_RELDIR="share/doc/${P}/html"
@@ -109,8 +105,6 @@ src_configure() {
 		-DDEAL_II_WITH_METIS="$(usex metis)"
 		-DDEAL_II_WITH_MPI="$(usex mpi)"
 		-DDEAL_II_WITH_MUPARSER="$(usex muparser)"
-		-DDEAL_II_WITH_NANOFLANN="$(usex nanoflann)"
-		-DDEAL_II_WITH_NETCDF="$(usex netcdf)"
 		-DOPENCASCADE_DIR="${CASROOT}"
 		-DDEAL_II_WITH_OPENCASCADE="$(usex opencascade)"
 		-DDEAL_II_WITH_P4EST="$(usex p4est)"
@@ -122,7 +116,7 @@ src_configure() {
 		-DDEAL_II_WITH_UMFPACK="$(usex sparse)"
 		-DBUILD_SHARED_LIBS="$(usex !static-libs)"
 		-DDEAL_II_PREFER_STATIC_LIBS="$(usex static-libs)"
-		-DDEAL_II_WITH_THREADS="$(usex tbb)"
+		-DDEAL_II_WITH_TASKFLOW=ON
 		-DDEAL_II_WITH_TRILINOS="$(usex trilinos)"
 	)
 

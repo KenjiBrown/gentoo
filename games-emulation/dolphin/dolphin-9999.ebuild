@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,6 +11,7 @@ inherit cmake desktop xdg-utils l10n pax-utils
 if [[ ${PV} == *9999 ]]
 then
 	EGIT_REPO_URI="https://github.com/dolphin-emu/dolphin"
+	EGIT_SUBMODULES=()
 	inherit git-r3
 else
 	inherit vcs-snapshot
@@ -24,11 +25,11 @@ HOMEPAGE="https://www.dolphin-emu.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="alsa bluetooth discord-presence doc +evdev ffmpeg log lto profile pulseaudio +qt5 systemd upnp"
+IUSE="alsa bluetooth discord-presence doc +evdev ffmpeg log lto profile pulseaudio +qt5 systemd upnp vulkan"
 
 RDEPEND="
 	dev-libs/hidapi:0=
-	dev-libs/libfmt:0=
+	>=dev-libs/libfmt-7.1:0=
 	dev-libs/lzo:2=
 	dev-libs/pugixml:0=
 	media-libs/libpng:0=
@@ -69,7 +70,7 @@ BDEPEND="
 # vulkan-loader required for vulkan backend which can be selected
 # at runtime.
 RDEPEND="${RDEPEND}
-	media-libs/vulkan-loader"
+	vulkan? ( media-libs/vulkan-loader )"
 
 src_prepare() {
 	cmake_src_prepare
@@ -89,6 +90,10 @@ src_prepare() {
 		# no support for for using system library
 		glslang
 		imgui
+
+		# not packaged, tiny header library
+		rangeset
+
 		# FIXME: xxhash can't be found by cmake
 		xxhash
 		# no support for for using system library
@@ -126,6 +131,12 @@ src_prepare() {
 
 	l10n_find_plocales_changes "Languages/po/" "" '.po'
 	l10n_for_each_disabled_locale_do remove_locale
+
+	# About 50% compile-time speedup
+	use vulkan || sed -i -e '/Externals\/glslang/d' CMakeLists.txt
+
+	# Remove dirty suffix: needed for netplay
+	sed -i -e 's/--dirty/&=""/' CMakeLists.txt
 }
 
 src_configure() {
@@ -142,16 +153,20 @@ src_configure() {
 		-DENABLE_PULSEAUDIO=$(usex pulseaudio)
 		-DENABLE_QT=$(usex qt5)
 		-DENABLE_SDL=OFF # not supported: #666558
+		-DENABLE_VULKAN=$(usex vulkan)
 		-DFASTLOG=$(usex log)
 		-DOPROFILING=$(usex profile)
 		-DUSE_DISCORD_PRESENCE=$(usex discord-presence)
 		-DUSE_SHARED_ENET=ON
 		-DUSE_UPNP=$(usex upnp)
 
-		# Undo cmake-utils.eclass's defaults.
+		# Undo cmake.eclass's defaults.
 		# All dolphin's libraries are private
 		# and rely on circular dependency resolution.
 		-DBUILD_SHARED_LIBS=OFF
+
+		# Avoid warning spam around unset variables.
+		-Wno-dev
 	)
 
 	cmake_src_configure

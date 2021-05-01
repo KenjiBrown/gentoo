@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 inherit python-single-r1 cmake
 
 DESCRIPTION="Library for rectifying and simulating photographic lens distortions"
@@ -33,6 +33,10 @@ RDEPEND="${PYTHON_DEPS}
 DEPEND="${RDEPEND}"
 
 DOCS=( README.md docs/mounts.txt ChangeLog )
+
+PATCHES=(
+	"${FILESDIR}/${P}-warnings.patch"
+)
 
 src_configure() {
 	local mycmakeargs=(

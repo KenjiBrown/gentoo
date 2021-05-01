@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..8} )
+PYTHON_COMPAT=( python3_{7..8} )
 PYTHON_REQ_USE="sqlite,ssl"
 
 inherit bash-completion-r1 desktop toolchain-funcs python-single-r1 xdg-utils
@@ -31,7 +31,7 @@ LICENSE="
 	OFL-1.1
 	PSF-2
 "
-KEYWORDS="~amd64 ~arm ~x86"
+KEYWORDS="amd64 ~arm x86"
 SLOT="0"
 IUSE="ios +udisks"
 
@@ -124,6 +124,8 @@ src_prepare() {
 		"${FILESDIR}/${PN}-2.9.0-no_updates_dialog.patch" \
 		"${FILESDIR}/${PN}-disable_plugins.patch"
 
+	has_version ">=dev-libs/icu-68.1" && eapply "${FILESDIR}/${PN}-4.22.0-icu68.patch"
+
 	eapply_user
 
 	# Fix outdated version constant.
@@ -153,6 +155,7 @@ src_prepare() {
 '-e', 's|^CXXFLAGS .*|\\\\\\\\0 ${CXXFLAGS}|', \
 '-e', 's|^LFLAGS .*|\\\\\\\\0 ${LDFLAGS}|', \
 '-i', 'Makefile'])" \
+		-e "s|open(self.j(bdir, '.qmake.conf'), 'wb').close()|open(self.j(bdir, '.qmake.conf'), 'wb').write(b'QMAKE_LFLAGS += ${LDFLAGS}')|" \
 		-i setup/build.py || die "sed failed to patch build.py"
 }
 

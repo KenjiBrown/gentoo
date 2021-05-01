@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -18,7 +18,7 @@ else
 		SRC_URI="https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/${P}.tar.xz"
 	fi
 
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86"
 fi
 
 DESCRIPTION="Linux firmware files"
@@ -41,8 +41,6 @@ BDEPEND="initramfs? ( app-arch/cpio )"
 RDEPEND="!savedconfig? (
 		redistributable? (
 			!sys-firmware/alsa-firmware[alsa_cards_ca0132]
-			!net-dialup/ueagle-atm
-			!net-dialup/ueagle4-atm
 			!sys-block/qla-fc-firmware
 			!sys-firmware/iwl1000-ucode
 			!sys-firmware/iwl6005-ucode

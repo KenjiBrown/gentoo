@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,12 +13,12 @@ SLOT="0/2"
 LICENSE="LGPL-2.1+"
 
 # Stabilize together with glibc-2.26!
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 
 IUSE=""
 
 DEPEND="
-	>=net-libs/libtirpc-1.0.2-r1[${MULTILIB_USEDEP}]
+	>=net-libs/libtirpc-1.2.0[${MULTILIB_USEDEP}]
 "
 RDEPEND="${DEPEND}
 	!<sys-libs/glibc-2.26

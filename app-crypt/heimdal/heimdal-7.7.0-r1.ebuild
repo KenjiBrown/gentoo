@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 VIRTUALX_REQUIRED="manual"
 
 inherit autotools db-use multilib multilib-minimal python-any-r1 virtualx flag-o-matic
@@ -15,7 +15,7 @@ SRC_URI="https://github.com/${PN}/${PN}/releases/download/${P}/${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 sparc x86"
 IUSE="afs +berkdb caps gdbm hdb-ldap libressl +lmdb otp selinux ssl static-libs test X"
 RESTRICT="!test? ( test )"
 
@@ -46,6 +46,7 @@ DEPEND="${CDEPEND}
 	${PYTHON_DEPS}
 	dev-perl/JSON
 	virtual/pkgconfig
+	sys-apps/texinfo
 	>=sys-devel/autoconf-2.62
 	test? ( X? ( ${VIRTUALX_DEPEND} ) )"
 
@@ -73,6 +74,7 @@ PATCHES=(
 	"${FILESDIR}/heimdal_hcrypto.patch"
 	"${FILESDIR}/heimdal_build-headers-before-use.patch"
 	"${FILESDIR}/heimdal_fix-db60.patch"
+	"${FILESDIR}/heimdal_fix-autoconf-2.70.patch"
 )
 
 src_prepare() {

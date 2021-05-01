@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -33,19 +33,10 @@ case ${PV} in
 		EGIT_CHECKOUT_DIR=${S}
 		SLOT=${PV}
 		;;
-	*.9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		EGIT_BRANCH=$(get_version_component_range 1-2)
-		EGIT_BRANCH="binutils-${EGIT_BRANCH/./_}-branch"
-		SLOT=$(get_version_component_range 1-2)
-		;;
 	*)
 		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
 		SLOT=$(get_version_component_range 1-2)
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86"
+		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 		;;
 esac
 

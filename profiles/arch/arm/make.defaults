@@ -1,3 +1,6 @@
+# Copyright 2008-2020 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
 # Main ARM profile
 
 ARCH="arm"
@@ -22,4 +25,3 @@ VIDEO_CARDS="exynos fbdev omap"
 # Michał Górny <mgorny@gentoo.org> (2017-03-14)
 # Unhide the ARM-specific USE_EXPANDs.
 USE_EXPAND_HIDDEN="-CPU_FLAGS_ARM"
-

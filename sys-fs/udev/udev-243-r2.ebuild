@@ -1,4 +1,4 @@
-# Copyright 2003-2020 Gentoo Authors
+# Copyright 2003-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -13,7 +13,7 @@ else
 	MY_P=systemd-${MY_PV}
 	S=${WORKDIR}/${MY_P}
 	SRC_URI="https://github.com/systemd/systemd/archive/v${MY_PV}/${MY_P}.tar.gz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86"
 fi
 
 DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
@@ -45,7 +45,8 @@ DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xml-dtd:4.2
 	app-text/docbook-xml-dtd:4.5
 	app-text/docbook-xsl-stylesheets
-	dev-libs/libxslt"
+	dev-libs/libxslt
+	${PYTHON_DEPS}"
 RDEPEND="${COMMON_DEPEND}
 	acct-group/kmem
 	acct-group/tty

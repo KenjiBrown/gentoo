@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{7..9} )
 inherit autotools gnome2-utils linux-info python-single-r1 systemd xdg-utils
 
 DESCRIPTION="Simple and intuitive GTK+ Bluetooth Manager"
@@ -12,7 +12,6 @@ HOMEPAGE="https://github.com/blueman-project/blueman"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/blueman-project/blueman.git"
-	KEYWORDS=""
 else
 	SRC_URI="https://github.com/blueman-project/${PN}/releases/download/${PV/_/.}/${P/_/.}.tar.xz"
 	S=${WORKDIR}/${P/_/.}
@@ -118,7 +117,7 @@ src_install() {
 		doins "${FILESDIR}/01-org.blueman.rules"
 	fi
 
-	rm "${D}"/$(python_get_sitedir)/*.la || die
+	find "${D}" -name '*.la' -delete || die
 }
 
 pkg_postinst() {

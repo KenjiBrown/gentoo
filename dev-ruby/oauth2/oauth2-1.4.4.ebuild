@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,7 @@ RUBY_FAKEGEM_EXTRADOC="README.md"
 
 RUBY_FAKEGEM_GEMSPEC="oauth2.gemspec"
 
-inherit ruby-fakegem eutils
+inherit ruby-fakegem
 
 DESCRIPTION="Wrapper for the OAuth 2.0 protocol with a similar style to the OAuth gem"
 HOMEPAGE="https://github.com/intridea/oauth2"
@@ -24,7 +24,7 @@ KEYWORDS="~amd64 ~ppc ~ppc64 ~x86"
 IUSE=""
 
 ruby_add_rdepend ">=dev-ruby/faraday-0.8 <dev-ruby/faraday-2.0
-	|| ( dev-ruby/jwt:2 dev-ruby/jwt:0 )
+	dev-ruby/jwt:2
 	>=dev-ruby/multi_json-1.3 =dev-ruby/multi_json-1*
 	>=dev-ruby/multi_xml-0.5:0
 	>=dev-ruby/rack-1.2:* <dev-ruby/rack-3:*"

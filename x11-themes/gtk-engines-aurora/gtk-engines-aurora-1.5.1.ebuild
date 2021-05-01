@@ -1,17 +1,17 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 MY_MAJ=$(ver_cut 1-2)
-
 DESCRIPTION="Aurora GTK+ 2.x Theme Engine"
 HOMEPAGE="https://www.gnome-look.org/content/show.php?content=56438"
 SRC_URI="https://gnome-look.org/CONTENT/content-files/56438-aurora-${PV}.tar.bz2"
+S="${WORKDIR}/aurora-${MY_MAJ}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 x86 ~amd64-linux ~x86-linux ~x86-macos"
+KEYWORDS="amd64 x86 ~amd64-linux ~x86-linux"
 
 RDEPEND="
 	dev-libs/glib:2
@@ -19,9 +19,10 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
-S="${WORKDIR}/aurora-${MY_MAJ}"
-
-PATCHES=( "${FILESDIR}"/${P}-glib-2.31.patch )
+PATCHES=(
+	"${FILESDIR}"/${P}-glib-2.31.patch
+	"${FILESDIR}"/${P}-slibtool-undefined-references.patch
+)
 
 src_unpack() {
 	unpack ${A}
@@ -40,5 +41,5 @@ src_install() {
 	doins -r ../Aurora/.
 
 	# no static archives
-	find "${D}" -name '*.la' -delete || die
+	find "${ED}" -name '*.la' -delete || die
 }

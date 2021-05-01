@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Note: xemacs currently does not work with position independent code
@@ -6,7 +6,7 @@
 
 EAPI=7
 
-inherit autotools eutils flag-o-matic multilib xdg-utils desktop
+inherit autotools flag-o-matic xdg-utils desktop
 
 DESCRIPTION="highly customizable open source text editor and application development system"
 HOMEPAGE="http://www.xemacs.org/"
@@ -69,6 +69,8 @@ src_prepare() {
 	eapply "${FILESDIR}/${P}-as-needed.patch"
 	eapply "${FILESDIR}/${P}-configure-libc-version.patch"
 	eapply "${FILESDIR}/${P}-ar.patch"
+	eapply "${FILESDIR}/${P}-strsignal.patch"
+	eapply "${FILESDIR}/${P}-process-test-qa.patch"
 
 	eapply_user
 

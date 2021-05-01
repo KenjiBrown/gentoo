@@ -3,9 +3,8 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} pypy3 )
+PYTHON_COMPAT=( python3_{7,8} pypy3 )
 
-DISTUTILS_USE_SETUPTOOLS=rdepend
 inherit distutils-r1
 
 DESCRIPTION="pytest plugin to check PEP8 requirements"

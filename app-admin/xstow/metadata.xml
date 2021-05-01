@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>maksbotan@gentoo.org</email>
-		<name>Maxim Koltsov</name>
+	<maintainer type="person" proxied="yes">
+		<email>kingleo@gmx.at</email>
+		<name>Martin Oberzalek</name>
 	</maintainer>
-	<longdescription>A program that manages the installation of software packages.</longdescription>
+	<maintainer type="project" proxied="proxy">
+		<email>proxy-maint@gentoo.org</email>
+		<name>Proxy Maintainers</name>
+	</maintainer>
 	<upstream>
 		<remote-id type="sourceforge">xstow</remote-id>
 	</upstream>

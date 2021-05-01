@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -11,7 +11,7 @@ SRC_URI="https://www.linuxnetworks.de/opendbx/download/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="firebird +man +mysql oracle postgres sqlite"
 RESTRICT="firebird? ( bindist )"
 
@@ -52,7 +52,21 @@ src_configure() {
 
 	use mysql && append-cppflags -I/usr/include/mysql
 	use firebird && append-cppflags -I/opt/firebird/include
-	use oracle && append-ldflags -L"${ORACLE_HOME}"/lib
+
+	if use oracle ; then
+		# Traditionally, OCI header files are provided in:
+		append-cppflags -I"${ORACLE_HOME}"/rdbms/public
+		# But newer versions merged them with additional SDKs:
+		append-cppflags -I"${ORACLE_HOME}"/sdk/include
+		# Depending on the client package ORACLE_HOME refers to,
+		# we need to find the libraries in varying locations:
+		# - gentoo instantclient has multilib (dev-db/oracle-instantclient)
+		append-ldflags -L"${ORACLE_HOME}"/$(get_libdir)
+		# - vanilla full client lacks multilib (LINUX*_client{,_home}.zip)
+		append-ldflags -L"${ORACLE_HOME}"/lib
+		# - vanilla instantclient lacks libdir (instantclient-*.zip)
+		append-ldflags -L"${ORACLE_HOME}"
+	fi
 
 	econf --with-backends="${backends}" --enable-manpages="$(usex man yes no)"
 }

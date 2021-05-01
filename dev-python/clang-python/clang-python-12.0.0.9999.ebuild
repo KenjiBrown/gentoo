@@ -3,13 +3,11 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} )
+PYTHON_COMPAT=( python3_{7..9} )
 inherit llvm.org python-r1
 
 DESCRIPTION="Python bindings for sys-devel/clang"
 HOMEPAGE="https://llvm.org/"
-LLVM_COMPONENTS=( clang/bindings/python )
-llvm.org_set_globals
 
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA"
 SLOT="0"
@@ -26,6 +24,9 @@ RDEPEND="
 	!sys-devel/clang:0[python(-)]
 	${PYTHON_DEPS}"
 DEPEND="${RDEPEND}"
+
+LLVM_COMPONENTS=( clang/bindings/python )
+llvm.org_set_globals
 
 python_test() {
 	"${EPYTHON}" -m unittest discover -v || die "Tests fail with ${EPYTHON}"

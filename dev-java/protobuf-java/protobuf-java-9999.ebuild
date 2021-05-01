@@ -1,4 +1,4 @@
-# Copyright 2008-2020 Gentoo Authors
+# Copyright 2008-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -22,7 +22,7 @@ else
 fi
 
 LICENSE="BSD"
-SLOT="0/23"
+SLOT="0/26"
 KEYWORDS=""
 IUSE=""
 
@@ -39,7 +39,10 @@ if [[ "${PV}" == "9999" ]]; then
 fi
 
 src_prepare() {
-	default
+	pushd "${WORKDIR}/protobuf-${PV}" > /dev/null || die
+	eapply_user
+	popd > /dev/null || die
+
 	java-pkg-2_src_prepare
 }
 

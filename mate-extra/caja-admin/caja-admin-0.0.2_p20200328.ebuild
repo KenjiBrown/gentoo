@@ -13,10 +13,10 @@ elif [[ ${PV} =~ _p[0-9]{8,} ]]; then
 	S="${WORKDIR}/${PN}-${SHA}"
 else
 	SRC_URI="https://github.com/infirit/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 fi
 
-PYTHON_COMPAT=( python{3_6,3_7,3_8} )
+PYTHON_COMPAT=( python{3_7,3_8} )
 
 inherit meson python-single-r1
 

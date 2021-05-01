@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit gnome2-utils readme.gentoo-r1 xdg
+inherit desktop gnome2-utils readme.gentoo-r1 xdg
 
 DESCRIPTION="Intelligent Python IDE with unique code assistance and analysis"
 HOMEPAGE="http://www.jetbrains.com/pycharm/"
@@ -11,7 +11,7 @@ SRC_URI="http://download.jetbrains.com/python/${P}.tar.gz"
 
 LICENSE="PyCharm_Academic PyCharm_Classroom PyCharm PyCharm_OpenSource PyCharm_Preview"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="+bundled-jdk"
 
 RDEPEND="!bundled-jdk? ( >=virtual/jre-1.8 )

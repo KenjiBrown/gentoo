@@ -1,11 +1,13 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# @DEAD
 # @ECLASS: games.eclass
 # @MAINTAINER:
 # Games team <games@gentoo.org>
 # @SUPPORTED_EAPIS: 0 1 2 3 4 5
 # @BLURB: Standardizing the install of games.
+# @DEPRECATED: none
 # @DESCRIPTION:
 # This eclass makes sure that games are consistently handled in gentoo.
 # It installs game files by default in FHS-compatible directories

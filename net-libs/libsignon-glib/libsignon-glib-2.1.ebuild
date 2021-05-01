@@ -1,13 +1,13 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
-inherit meson python-r1 vala vcs-snapshot
+PYTHON_COMPAT=( python3_{7,8,9} )
+inherit meson python-r1 vala
 
 DESCRIPTION="GLib binding for the D-Bus API provided by signond"
-HOMEPAGE="https://01.org/gsso/"
+HOMEPAGE="https://accounts-sso.gitlab.io/"
 SRC_URI="https://gitlab.com/accounts-sso/${PN}/-/archive/VERSION_${PV}/${PN}-VERSION_${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
@@ -16,6 +16,8 @@ KEYWORDS="amd64 arm64 x86"
 IUSE="debug doc +introspection python test"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} introspection )"
+# needs more love
+RESTRICT="test"
 
 RDEPEND="
 	dev-libs/glib:2
@@ -27,19 +29,22 @@ RDEPEND="
 	)
 "
 DEPEND="${RDEPEND}"
-BDEPEND="
+BDEPEND="${PYTHON_DEPS}
+	$(vala_depend)
 	dev-util/gdbus-codegen
 	dev-util/glib-utils
 	doc? ( dev-util/gtk-doc )
 	test? ( dev-libs/check )
 "
 
-# needs more love
-RESTRICT="test"
+S="${WORKDIR}/${PN}-VERSION_${PV}"
+
+pkg_setup() {
+	python_setup
+}
 
 src_prepare() {
 	default
-
 	vala_src_prepare
 
 	use doc || sed -e "/^subdir('docs')$/d" -i meson.build || die
@@ -87,6 +92,7 @@ src_install() {
 
 	if use python; then
 		python_foreach_impl run_in_build_dir meson_src_install
+		python_foreach_impl python_optimize
 	else
 		meson_src_install
 	fi

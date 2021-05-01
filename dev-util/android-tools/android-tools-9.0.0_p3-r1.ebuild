@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{7..9} )
 CMAKE_MAKEFILE_GENERATOR="ninja"
 
 inherit flag-o-matic bash-completion-r1 ninja-utils toolchain-funcs cmake-utils python-r1
@@ -18,7 +18,7 @@ BORINGSSL_SHA1="45210dd4e21ace9d28cb76b3f83303fcdd2efcce"
 GLIBC_GETTID_PATCH="${P}-fix-build-with-glibc-2.30.patch"
 # The ninja file was created by running the ruby script from archlinux by hand and fixing the build vars.
 # No point in depending on something large/uncommon like ruby just to generate a ninja file.
-SRC_URI="https://git.archlinux.org/svntogit/community.git/snapshot/community-0ffb7b41d599741d100a6a00a4bb20e162cd3f90.tar.xz -> ${MY_P}-arch.tar.xz
+SRC_URI="https://github.com/archlinux/svntogit-community/archive/0ffb7b41d599741d100a6a00a4bb20e162cd3f90.tar.gz -> ${MY_P}-arch.tar.gz
 	https://github.com/android/platform_system_core/archive/android-${MY_PV}.tar.gz -> ${MY_P}-core.tar.gz
 	https://github.com/google/boringssl/archive/${BORINGSSL_SHA1}.tar.gz -> boringssl-${BORINGSSL_SHA1}.tar.gz
 	mirror://gentoo/${MY_P}-e2fsprogs.tar.xz https://dev.gentoo.org/~zmedico/dist/${MY_P}-e2fsprogs.tar.xz
@@ -44,6 +44,8 @@ RDEPEND="${DEPEND}
 DEPEND+="
 	dev-lang/go"
 
+PATCHES=("${FILESDIR}"/${PN}-9.0.0-limits-gcc11.patch)
+
 S=${WORKDIR}
 CMAKE_USE_DIR="${S}/boringssl"
 
@@ -61,7 +63,7 @@ unpack_into() {
 }
 
 src_unpack() {
-	unpack_into "${MY_P}-arch.tar.xz" arch
+	unpack_into "${MY_P}-arch.tar.gz" arch
 	unpack_into "${MY_P}-core.tar.gz" core
 	unpack_into "${MY_P}-e2fsprogs.tar.xz" ./e2fsprogs
 	unpack_into "${MY_P}-extras.tar.xz" extras

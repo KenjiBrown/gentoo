@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -19,7 +19,7 @@ SRC_URI="
 
 SLOT="0"
 LICENSE="BSD GPL-2"
-KEYWORDS="-* ~amd64 ~x86"
+KEYWORDS="-* amd64 x86"
 
 DEPEND=">=sys-devel/bin86-0.15.5"
 RDEPEND="device-mapper? ( >=sys-fs/lvm2-2.02.45 )"
@@ -33,6 +33,7 @@ src_prepare() {
 	use pxeserial && eapply "${FILESDIR}/${PN}-24.1-novga.patch"
 
 	eapply "${FILESDIR}/${PN}-24.2-add-nvme-support.patch"
+	eapply "${FILESDIR}/${PN}-24.x-fix-gcc-10.patch"
 
 	# Do not strip and have parallel make
 	# FIXME: images/Makefile does weird stuff

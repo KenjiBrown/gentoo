@@ -1,9 +1,7 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-
-inherit eutils
 
 MY_P="${PN}-${PV:0:4}-${PV:0-1}"
 DESCRIPTION="POSIX man-pages (0p, 1p, 3p)"
@@ -12,7 +10,7 @@ SRC_URI="https://www.kernel.org/pub/linux/docs/man-pages/${PN}/${MY_P}.tar.xz"
 
 LICENSE="man-pages-posix-2013"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE=""
 RESTRICT="binchecks"
 

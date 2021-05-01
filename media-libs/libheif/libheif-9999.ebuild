@@ -1,35 +1,39 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
-inherit autotools xdg-utils multilib-minimal
+inherit autotools xdg multilib-minimal
 
-if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="https://github.com/strukturag/${PN}.git"
+if [[ ${PV} == *9999 ]] ; then
+	EGIT_REPO_URI="https://github.com/strukturag/libheif.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/strukturag/${PN}/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
+	SRC_URI="https://github.com/strukturag/libheif/releases/download/v${PV}/${P}.tar.gz"
+	KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 fi
 
 DESCRIPTION="ISO/IEC 23008-12:2017 HEIF file format decoder and encoder"
 HOMEPAGE="https://github.com/strukturag/libheif"
 
 LICENSE="GPL-3"
-SLOT="0/1.6"
-IUSE="static-libs test +threads"
-
+SLOT="0/1.11"
+IUSE="+aom gdk-pixbuf go libde265 rav1e test +threads x265"
+REQUIRED_USE="test? ( go libde265 )"
 RESTRICT="!test? ( test )"
 
 BDEPEND="test? ( dev-lang/go )"
 DEPEND="
-	media-libs/libde265:=[${MULTILIB_USEDEP}]
+	media-libs/dav1d:=[${MULTILIB_USEDEP}]
 	media-libs/libpng:0=[${MULTILIB_USEDEP}]
-	media-libs/x265:=[${MULTILIB_USEDEP}]
 	sys-libs/zlib:=[${MULTILIB_USEDEP}]
 	virtual/jpeg:0=[${MULTILIB_USEDEP}]
-"
+	aom? ( >=media-libs/libaom-2.0.0:=[${MULTILIB_USEDEP}] )
+	gdk-pixbuf? ( x11-libs/gdk-pixbuf[${MULTILIB_USEDEP}] )
+	go? ( dev-lang/go )
+	libde265? ( media-libs/libde265:=[${MULTILIB_USEDEP}] )
+	rav1e? ( media-video/rav1e:= )
+	x265? ( media-libs/x265:=[${MULTILIB_USEDEP}] )"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
@@ -44,24 +48,26 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	local myeconfargs=(
+	export GO111MODULE=auto
+	local econf_args=(
+		--disable-static
+		$(multilib_is_native_abi && use go || echo --disable-go)
+		$(use_enable aom)
+		$(use_enable libde265)
+		$(use_enable gdk-pixbuf)
+		$(use_enable rav1e)
 		$(use_enable threads multithreading)
-		$(use_enable static-libs static)
+		$(use_enable x265)
 	)
-	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+	ECONF_SOURCE="${S}" econf "${econf_args[@]}"
+}
+
+multilib_src_test() {
+	default
+	emake -C go test
 }
 
 multilib_src_install_all() {
+	einstalldocs
 	find "${ED}" -name '*.la' -delete || die
-	if ! use static-libs ; then
-		find "${ED}" -name "*.a" -delete || die
-	fi
-}
-
-pkg_postinst() {
-	xdg_mimeinfo_database_update
-}
-
-pkg_postrm() {
-	xdg_mimeinfo_database_update
 }

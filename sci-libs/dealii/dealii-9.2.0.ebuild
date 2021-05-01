@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit cmake-utils eutils multilib
+inherit cmake-utils multilib
 
 # deal.II uses its own FindLAPACK.cmake file that calls into the system
 # FindLAPACK.cmake module and does additional internal setup. Do not remove
@@ -17,7 +17,6 @@ if [[ ${PV} = *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dealii/dealii.git"
 	SRC_URI=""
-	KEYWORDS=""
 else
 	SRC_URI="https://github.com/${PN}/${PN}/releases/download/v${PV}/${P}.tar.gz
 		doc? (
@@ -31,7 +30,7 @@ SLOT="0"
 IUSE="
 	adolc assimp arpack cpu_flags_x86_avx cpu_flags_x86_avx512f
 	cpu_flags_x86_sse2 cuda +debug doc +examples ginkgo gmsh +gsl hdf5
-	+lapack metis mpi muparser nanoflann opencascade netcdf p4est petsc
+	+lapack metis mpi muparser nanoflann opencascade p4est petsc
 	scalapack slepc +sparse static-libs sundials symengine +tbb trilinos
 "
 
@@ -57,7 +56,6 @@ RDEPEND="dev-libs/boost
 	mpi? ( virtual/mpi )
 	muparser? ( dev-cpp/muParser )
 	nanoflann? ( sci-libs/nanoflann )
-	netcdf? ( sci-libs/netcdf-cxx:0 )
 	opencascade? ( sci-libs/opencascade:* )
 	p4est? ( sci-libs/p4est[mpi] )
 	petsc? ( sci-mathematics/petsc[mpi=] )
@@ -75,6 +73,7 @@ DEPEND="${RDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-9.1.1-no-ld-flags.patch
+	"${FILESDIR}"/${PN}-9.2.0-fix-boost-include-file.patch
 )
 
 src_configure() {
@@ -82,7 +81,7 @@ src_configure() {
 	local CMAKE_BUILD_TYPE=$(usex debug DebugRelease Release)
 
 	local mycmakeargs=(
-		-DDEAL_II_PACKAGE_VERSION=9999
+		-DDEAL_II_PACKAGE_VERSION="${PV}"
 		-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=OFF
 		-DDEAL_II_ALLOW_AUTODETECTION=OFF
 		-DDEAL_II_ALLOW_BUNDLED=OFF
@@ -110,7 +109,6 @@ src_configure() {
 		-DDEAL_II_WITH_MPI="$(usex mpi)"
 		-DDEAL_II_WITH_MUPARSER="$(usex muparser)"
 		-DDEAL_II_WITH_NANOFLANN="$(usex nanoflann)"
-		-DDEAL_II_WITH_NETCDF="$(usex netcdf)"
 		-DOPENCASCADE_DIR="${CASROOT}"
 		-DDEAL_II_WITH_OPENCASCADE="$(usex opencascade)"
 		-DDEAL_II_WITH_P4EST="$(usex p4est)"

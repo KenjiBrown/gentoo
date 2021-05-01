@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils toolchain-funcs flag-o-matic
+inherit toolchain-funcs flag-o-matic
 
 DESCRIPTION="Source metrics (line counts, complexity, etc) for Java and C++"
 HOMEPAGE="http://sarnold.github.io/cccc/"
@@ -35,16 +35,16 @@ src_prepare() {
 src_compile() {
 	tc-export CC CXX LD AS AR NM RANLIB STRIP OBJCOPY
 	if use debug ; then
-		DEBUG="true" emake CCC=$(tc-getCXX) CC=$(tc-getCC) cccc
+		DEBUG="true" emake -j1 CCC=$(tc-getCXX) CC=$(tc-getCC) cccc
 	else
-		emake CCC=$(tc-getCXX) CC=$(tc-getCC) cccc
+		emake -j1 CCC=$(tc-getCXX) CC=$(tc-getCC) cccc
 	fi
 
-	use apidoc && emake CCC=$(tc-getCXX) metrics docs
+	use apidoc && emake -j1 CCC=$(tc-getCXX) metrics docs
 }
 
 src_test() {
-	emake CCC=$(tc-getCXX) test
+	emake -j1 CCC=$(tc-getCXX) test
 }
 
 src_install() {
@@ -52,7 +52,11 @@ src_install() {
 
 	dodoc README.md
 
-	use mfc && dodoc "${FILESDIR}"/cccc-MFC-dialect.opt
+	if use mfc ; then
+		docinto examples
+		dodoc "${FILESDIR}"/cccc-MFC-dialect.opt
+		docompress -x "/usr/share/doc/${PF}/examples"
+	fi
 
 	if use doc ; then
 		docinto html
@@ -60,8 +64,9 @@ src_install() {
 		if use apidoc ; then
 			docinto html/api
 			dodoc -r doxygen/html/.
+
 			docinto html/metrics
-			dodoc -r ccccout/.
+			dodoc ccccout/*
 		fi
 	fi
 }

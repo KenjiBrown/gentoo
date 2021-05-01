@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Unmask the flag which corresponds to ARCH.
@@ -37,12 +37,10 @@ ayatana
 # mongodb is not keyworded on sparc
 mongodb
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2018-12-06)
-# dev-qt/qtdeclarative-5.11.x is broken and blocks re-keywording of Qt5.
-qml
-
 # Sergei Trofimovich <slyfox@gentoo.org> (2017-11-19)
 # There is no luajit support on sparc. Bug #554376
+lua_single_target_luajit
+lua_targets_luajit
 luajit
 luajittex
 
@@ -54,10 +52,6 @@ physfs
 # James Le Cuirot <chewi@gentoo.org> (2017-06-29)
 # Unmask as this profile is big endian.
 -big-endian
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2017-02-25)
-# kwallet integration split from kde to distinct flag
-kwallet
 
 # Andrey Grozin <grozin@gentoo.org> (2014-06-25)
 # keyworded on sparc
@@ -100,7 +94,6 @@ mono
 d
 # LCDproc masks see bug #148072
 lcd_devices_g15
-lcd_devices_graphlcd
 lcd_devices_ula200
 # Masking hardened, it isn't really supported, see bugs #144126 #78951
 hardened
@@ -124,7 +117,6 @@ dmi
 ibm
 jfs
 libedit
-pm-utils
 reiser4
 reiserfs
 xfs
@@ -139,12 +131,12 @@ ebook
 capi
 lensfun
 jingle
-mod_wsgi
 vaapi
 librtmp
 rtmp
 vpx
 kde
+kwallet
 wildmidi
 barcode
 xmms2
@@ -153,7 +145,6 @@ aacplus
 soundcloud
 devil
 gts
-clang
 metalink
 tremor
 fdk

@@ -1,10 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7..9} )
 PYTHON_REQ_USE="sqlite,threads(+)"
+DISTUTILS_SINGLE_IMPL="1"
 
 inherit distutils-r1 virtualx xdg
 
@@ -26,19 +27,26 @@ SLOT="0"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
-	test? ( dev-python/nose[${PYTHON_USEDEP}] )
+	test? (
+		$(python_gen_cond_dep '
+			dev-python/nose[${PYTHON_USEDEP}]
+		')
+	)
 "
 RDEPEND="
 	app-arch/cabextract
 	app-arch/p7zip
-	app-arch/unrar
 	app-arch/unzip
-	dev-python/dbus-python[${PYTHON_USEDEP}]
-	dev-python/pillow[${PYTHON_USEDEP}]
-	dev-python/pygobject:3[${PYTHON_USEDEP}]
-	dev-python/python-evdev[${PYTHON_USEDEP}]
-	dev-python/pyyaml[${PYTHON_USEDEP}]
-	dev-python/requests[${PYTHON_USEDEP}]
+	$(python_gen_cond_dep '
+		dev-python/dbus-python[${PYTHON_USEDEP}]
+		dev-python/lxml[${PYTHON_USEDEP}]
+		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/pygobject:3[${PYTHON_USEDEP}]
+		dev-python/python-evdev[${PYTHON_USEDEP}]
+		dev-python/python-magic[${PYTHON_USEDEP}]
+		dev-python/pyyaml[${PYTHON_USEDEP}]
+		dev-python/requests[${PYTHON_USEDEP}]
+	')
 	gnome-base/gnome-desktop:3[introspection]
 	media-sound/fluid-soundfont
 	net-libs/libsoup
@@ -46,21 +54,19 @@ RDEPEND="
 	x11-apps/mesa-progs
 	x11-apps/xgamma
 	x11-apps/xrandr
+	x11-libs/libnotify[introspection]
 	x11-libs/gtk+:3[introspection]
-	x11-libs/libnotify
+	x11-libs/gdk-pixbuf[jpeg]
 "
 
 python_install_all() {
 	local DOCS=( AUTHORS README.rst docs/installers.rst )
 	distutils-r1_python_install_all
+	python_fix_shebang "${ED}"/usr/share/lutris/bin/lutris-wrapper #740048
 }
 
 python_test() {
 	virtx nosetests -v
-}
-
-pkg_preinst() {
-	xdg_pkg_preinst
 }
 
 pkg_postinst() {
@@ -71,8 +77,4 @@ pkg_postinst() {
 	elog "be written in either JSON or YAML. The scripting syntax is described"
 	elog "in ${EROOT}/usr/share/doc/${PF}/installers.rst.bz2, and is also"
 	elog "available online at lutris.net."
-}
-
-pkg_postrm() {
-	xdg_pkg_postrm
 }

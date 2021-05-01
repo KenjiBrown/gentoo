@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -26,6 +26,7 @@ RESTRICT="!test? ( test )"
 # used when BUILD_OPENCS flag is enabled. See bug #676266.
 
 RDEPEND="
+	app-arch/lz4
 	dev-games/mygui
 	dev-games/recastnavigation
 	dev-libs/boost:=[threads]
@@ -33,7 +34,7 @@ RDEPEND="
 	media-libs/libsdl2[joystick,opengl,video]
 	media-libs/openal
 	media-video/ffmpeg:=
-	>=sci-physics/bullet-2.86:=
+	>=sci-physics/bullet-2.86:=[double-precision]
 	virtual/opengl
 	osg-fork? ( dev-games/openscenegraph-openmw:=[ffmpeg,jpeg,png,sdl,svg,truetype,zlib] )
 	!osg-fork? ( >=dev-games/openscenegraph-3.5.5:=[ffmpeg,jpeg,png,sdl,svg,truetype,zlib] )
@@ -61,8 +62,8 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/openmw-0.46.0-mygui-license.patch
-	"${FILESDIR}"/openmw-0.46.0-recastnavigation.patch
+	"${FILESDIR}"/openmw-0.47.0-mygui-license.patch
+	"${FILESDIR}"/openmw-0.47.0-bullet-debian.patch
 )
 
 src_prepare() {
@@ -70,10 +71,6 @@ src_prepare() {
 
 	# Use the system tinyxml headers
 	rm -v extern/oics/tiny{str,xml}* || die
-
-	# Unbundle recastnavigation
-	rm -vr extern/recastnavigation || die
-	sed -i "s#GENTOO_RECAST_LIBDIR#${EPREFIX}/usr/$(get_libdir)#" CMakeLists.txt || die
 }
 
 src_configure() {
@@ -95,7 +92,9 @@ src_configure() {
 		-DICONDIR="${EPREFIX}/usr/share/icons/hicolor/256x256/apps"
 		-DMORROWIND_DATA_FILES="${EPREFIX}/usr/share/morrowind-data"
 		-DUSE_SYSTEM_TINYXML=ON
+		-DOPENMW_USE_SYSTEM_RECASTNAVIGATION=ON
 		-DDESIRED_QT_VERSION=5
+		-DBULLET_USE_DOUBLES=ON
 	)
 
 	cmake_src_configure

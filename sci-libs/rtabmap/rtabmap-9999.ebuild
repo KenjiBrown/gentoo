@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,6 @@ fi
 inherit ${SCM} cmake-utils multilib
 
 if [ "${PV#9999}" != "${PV}" ] ; then
-	KEYWORDS=""
 	SRC_URI=""
 else
 	KEYWORDS="~amd64"
@@ -33,7 +32,7 @@ RDEPEND="
 	sys-libs/zlib
 	sci-libs/octomap:=
 	dev-libs/boost:=
-	ieee1394? ( media-libs/libdc1394 )
+	ieee1394? ( media-libs/libdc1394:2= )
 	openni2? ( dev-libs/OpenNI2 )
 	qt5? (
 		dev-qt/qtwidgets:5

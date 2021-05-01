@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,20 +11,16 @@ EGIT_REPO_URI="https://gitlab.freedesktop.org/xorg/xserver.git"
 DESCRIPTION="X.Org X servers"
 SLOT="0/${PV}"
 if [[ ${PV} != 9999* ]]; then
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 
 IUSE_SERVERS="dmx kdrive wayland xephyr xnest xorg xvfb"
-IUSE="${IUSE_SERVERS} debug +elogind ipv6 libressl +libglvnd minimal selinux suid systemd +udev unwind xcsecurity"
+IUSE="${IUSE_SERVERS} debug +elogind ipv6 minimal selinux suid systemd test +udev unwind xcsecurity"
+RESTRICT="!test? ( test )"
 
-CDEPEND="libglvnd? (
-		media-libs/libglvnd[X]
-		!app-eselect/eselect-opengl
-		!!x11-drivers/nvidia-drivers[-libglvnd(-)]
-	)
-	!libglvnd? ( >=app-eselect/eselect-opengl-1.3.0	)
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:0= )
+CDEPEND="
+	media-libs/libglvnd[X]
+	dev-libs/openssl:0=
 	>=x11-apps/iceauth-1.0.2
 	>=x11-apps/rgb-1.0.3
 	>=x11-apps/xauth-1.0.3
@@ -37,7 +33,6 @@ CDEPEND="libglvnd? (
 	>=x11-libs/libxkbfile-1.0.4
 	>=x11-libs/libxshmfence-1.1
 	>=x11-libs/pixman-0.27.2
-	>=x11-libs/xtrans-1.3.5
 	>=x11-misc/xbitmaps-1.0.1
 	>=x11-misc/xkeyboard-config-2.4.1-r3
 	dmx? (
@@ -88,11 +83,11 @@ CDEPEND="libglvnd? (
 		sys-auth/elogind[pam]
 		sys-auth/pambase[elogind]
 	)
-	"
-
+	!!x11-drivers/nvidia-drivers[-libglvnd(+)]
+"
 DEPEND="${CDEPEND}
-	sys-devel/flex
 	>=x11-base/xorg-proto-2018.4
+	>=x11-libs/xtrans-1.3.5
 	dmx? (
 		doc? (
 			|| (
@@ -101,12 +96,16 @@ DEPEND="${CDEPEND}
 				www-client/w3m
 			)
 		)
-	)"
-
+	)
+"
 RDEPEND="${CDEPEND}
+	!systemd? ( gui-libs/display-manager-init )
 	selinux? ( sec-policy/selinux-xserver )
 "
-
+BDEPEND="
+	sys-devel/flex
+	wayland? ( dev-util/wayland-scanner )
+"
 PDEPEND="
 	xorg? ( >=x11-base/xorg-drivers-$(ver_cut 1-2) )"
 
@@ -145,6 +144,7 @@ pkg_setup() {
 		$(use_enable debug)
 		$(use_enable dmx)
 		$(use_enable kdrive)
+		$(use_enable test unit-tests)
 		$(use_enable unwind libunwind)
 		$(use_enable wayland xwayland)
 		$(use_enable !minimal record)
@@ -201,24 +201,11 @@ src_install() {
 		dodoc "${S}"/hw/xfree86/xorg.conf.example
 	fi
 
-	newinitd "${FILESDIR}"/xdm-setup.initd-1 xdm-setup
-	newinitd "${FILESDIR}"/xdm.initd-11 xdm
-	newconfd "${FILESDIR}"/xdm.confd-4 xdm
-
 	# install the @x11-module-rebuild set for Portage
 	insinto /usr/share/portage/config/sets
 	newins "${FILESDIR}"/xorg-sets.conf xorg.conf
 
 	find "${ED}"/var -type d -empty -delete || die
-}
-
-pkg_postinst() {
-	if ! use minimal; then
-		# sets up libGL and DRI2 symlinks if needed (ie, on a fresh install)
-		if ! use libglvnd; then
-			eselect opengl set xorg-x11 --use-old
-		fi
-	fi
 }
 
 pkg_postrm() {

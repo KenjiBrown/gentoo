@@ -1,9 +1,9 @@
-# Copyright 2019-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_{7,8} )
 
 inherit cmake python-single-r1 udev systemd
 
@@ -14,8 +14,8 @@ if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/linux-rdma/rdma-core"
 else
-	SRC_URI="https://github.com/linux-rdma/rdma-core/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~hppa ~x86"
+	SRC_URI="https://github.com/linux-rdma/rdma-core/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sparc x86"
 fi
 
 LICENSE="|| ( GPL-2 ( CC0-1.0 MIT BSD BSD-with-attribution ) )"
@@ -38,7 +38,7 @@ DEPEND="${COMMON_DEPEND}
 	)"
 
 RDEPEND="${COMMON_DEPEND}
-	!!sys-fabric/infiniband-diags
+	!sys-fabric/infiniband-diags
 	!sys-fabric/libibverbs
 	!sys-fabric/librdmacm
 	!sys-fabric/libibumad
@@ -55,6 +55,8 @@ RDEPEND="${COMMON_DEPEND}
 	!sys-fabric/libnes"
 
 BDEPEND="virtual/pkgconfig"
+
+PATCHES=( "${FILESDIR}"/optional_pandoc.patch )
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
@@ -77,7 +79,7 @@ src_configure() {
 	)
 
 	if use python; then
-		mycmakeargs+=( -DNO_PYVERBS=OFF )
+		mycmakeargs+=( -DNO_PYVERBS=OFF -DPYTHON_EXECUTABLE="${PYTHON}" )
 	else
 		mycmakeargs+=( -DNO_PYVERBS=ON )
 	fi
@@ -91,8 +93,11 @@ src_install() {
 	udev_dorules "${D}"/etc/udev/rules.d/70-persistent-ipoib.rules
 	rm -r "${D}"/etc/{udev,init.d} || die
 
-	newinitd "${FILESDIR}"/ibacm.init ibacm
-	newinitd "${FILESDIR}"/iwpmd.init iwpmd
+	if use neigh; then
+		newinitd "${FILESDIR}"/ibacm.init ibacm
+		newinitd "${FILESDIR}"/iwpmd.init iwpmd
+	fi
+
 	newinitd "${FILESDIR}"/srpd.init srpd
 
 	use python && python_optimize

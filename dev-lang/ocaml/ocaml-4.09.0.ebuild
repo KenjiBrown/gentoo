@@ -1,7 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+
+inherit flag-o-matic
 
 HOMEPAGE="https://ocaml.org/"
 SRC_URI="https://github.com/ocaml/ocaml/archive/${PV}.tar.gz -> ${P}.tar.gz"
@@ -9,7 +11,7 @@ DESCRIPTION="Programming language supporting functional, imperative & object-ori
 
 LICENSE="LGPL-2.1"
 SLOT="0/${PV}"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 x86 ~amd64-linux ~x86-linux ~ppc-macos ~sparc-solaris ~x86-solaris"
 IUSE="emacs flambda latex +ocamlopt spacetime xemacs"
 
 RDEPEND="sys-libs/binutils-libs:=
@@ -23,6 +25,15 @@ PATCHES=("${FILESDIR}"/${PN}-4.09.0-gcc-10.patch)
 
 src_prepare() {
 	default
+
+	# OCaml generates textrels on 32-bit arches
+	# We can't do anything about it, but disabling it means that tests
+	# for OCaml-based packages won't fail on unexpected output
+	# bug #773226
+	if use arm || use ppc || use x86 ; then
+		append-ldflags "-Wl,-z,notext"
+	fi
+
 	# Upstream build ignores LDFLAGS in several places.
 	sed -i -e 's/\(^MKDLL=.*\)/\1 $(LDFLAGS)/' \
 		-e 's/\(^OC_CFLAGS=.*\)/\1 $(LDFLAGS)/' \

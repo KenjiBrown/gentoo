@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,18 +6,18 @@ EAPI=7
 USE_RUBY="ruby24 ruby25 ruby26"
 RUBY_OPTIONAL=yes
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 
 inherit eutils perl-module ruby-ng python-single-r1
 
 DESCRIPTION="Library for reading and writing Windows Registry 'hive' binary files"
-HOMEPAGE="http://libguestfs.org"
-SRC_URI="http://libguestfs.org/download/${PN}/${P}.tar.gz"
+HOMEPAGE="https://libguestfs.org"
+SRC_URI="https://libguestfs.org/download/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="ocaml readline +perl python test static-libs ruby"
+IUSE="ocaml readline +perl python test ruby"
 
 RDEPEND="
 	virtual/libiconv
@@ -82,6 +82,7 @@ src_configure() {
 		--disable-ruby
 		$(use_enable python)
 		--disable-rpath
+		--disable-static
 		)
 
 	econf ${myeconfargs[@]}
@@ -105,4 +106,6 @@ src_install() {
 	if use perl; then
 		perl_delete_localpod
 	fi
+
+	find "${ED}" -name '*.la' -delete || die
 }

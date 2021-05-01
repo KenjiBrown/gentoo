@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file specifies packages that are considered deprecated (but not
@@ -17,23 +17,28 @@
 
 #--- END OF EXAMPLES ---
 
-# Joonas Niilola <juippis@gentoo.org> (2020-07-13)
-# Abandoned upstream, switch to dev-python/mysqlclient which is a maintained 
-# fork. #710024
-dev-python/mysql-python
+# Miroslav Šulc <fordfrog@gentoo.org> (2021-04-18)
+# version older than 3 don't compile with java 1.5+ and will be removed
+# slot 3.1 (versions < 3.6) are 99% compatible with slot 3.6 and should
+# not be used, use slot 3.6 or newer
+# see: https://bugs.gentoo.org/779472
+#      https://bugs.gentoo.org/784023
+<dev-java/commons-lang-3.6
+
+# Miroslav Šulc <fordfrog@gentoo.org> (2021-04-14)
+# because of unmasking java 11, which does not support bytecode older
+# than 1.6, those are deprecated in the ebuild. also, as the lowest
+# java version we support is 1.8, the restriction is lifted even more.
+<virtual/jdk-1.8
+<virtual/jre-1.8
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2020-11-20)
+# dev-qt/qtwebkit is in the process of being removed, tracker bug #684580
+dev-qt/qtwebkit
 
 # Mart Raudsepp <leio@gentoo.org> (2020-07-04)
 # Port to gtk+:3 using wxGTK:3.0-gtk3 SLOT
 x11-libs/wxGTK:3.0
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-05-17)
-# Abandoned upstream, countless bugs. Removal tracked in bug #659616
-sys-power/pm-utils
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-05-03)
-# Obsolete package gets in the way of unmasking >=x11-libs/pango-1.44
-# Bug #698922
-x11-libs/pangox-compat
 
 # Kent Fredric <kentnl@gentoo.org> (2020-04-15)
 # Functionality now provided by Net::SMTP 3.25+
@@ -43,27 +48,9 @@ x11-libs/pangox-compat
 # Bug #650320
 dev-perl/Net-SMTP-SSL
 
-# Michał Górny <mgorny@gentoo.org> (2020-03-25)
-# Provides 'pytest' command to setup.py that is entirely redundant.
-# Strip the dependency, run pytest directly (preferably
-# via 'distutils_enable_tests pytest').
-dev-python/pytest-runner
-
 # Matt Turner <mattst88@gentoo.org> (2020-03-17)
-# Deprecated GNOME 2 era packages
-# Bugs #640022, #713010, #726784, #728956
-dev-python/pygobject:2
+# Deprecated GNOME 2 era packages, bug #751001
 gnome-base/gnome-vfs
-gnome-base/libbonobo
-gnome-base/libbonoboui
-gnome-base/libgnome
-gnome-base/libgnome-keyring
-gnome-base/libgnomeui
-gnome-base/orbit
-
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-03-08)
-# dev-python/pygtk is in the process of being removed, tracker bug #706462
-dev-python/pygtk
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2020-03-08)
 # x11-libs/gtkglext is in the process of being removed, tracker bug #698950
@@ -73,36 +60,6 @@ x11-libs/gtkglext
 # virtual/libffi has only one dev-libs/libffi provider. Use that instead.
 # bug #699796.
 virtual/libffi
-
-# Michał Górny <mgorny@gentoo.org> (2019-12-30)
-# PyPy packages have been restructured, and the virtual is no longer
-# necessary.  Depend on dev-python/pypy{,3} instead.
-virtual/pypy
-virtual/pypy3
-
-# Georgy Yakovlev <gyakovlev@gentoo.org> (2019-12-21)
-# Unmaintained, vulnerable oracle java ebuilds, even fetching distfiles
-# requires agreement to restrictive license
-# Most things that still depend on oracle variants require javafx
-# https://bugs.gentoo.org/681828
-dev-java/oracle-jdk-bin
-dev-java/oracle-jre-bin
-
-# Ulrich Müller <ulm@gentoo.org> (2019-12-21)
-# Live ebuilds for Emacs from Git have been consolidated into the
-# app-editors/emacs package, which makes the virtual unnecessary.
-# Packages should depend on >=app-editors/emacs-23.1:* instead.
-# See the documentation of elisp-common.eclass for details.
-# Removal (without prior masking) after ~app-editors/emacs-27.1
-# is marked stable. Bug #291296.
-virtual/emacs
-
-# Michał Górny <mgorny@gentoo.org> (2019-12-09)
-# Test coverage reporting is not useful for Gentoo ebuilds.  The deps
-# against coverage plugins are either entirely spurious, or the build
-# systems need to be fixed to work without them.
-dev-python/nose-cover3
-dev-python/nosexcover
 
 # Zac Medico <zmedico@gentoo.org> (2019-12-06)
 # These golang libraries should be vendored either by upstream or via

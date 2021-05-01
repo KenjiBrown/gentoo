@@ -1,24 +1,30 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
-# Mikle Kolyada <zlogene@gentoo.org> (2020-08-02)
-# consolekit is masked for removal
-consolekit
 
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
+# Michał Górny <mgorny@gentoo.org> (2021-02-01)
+# dev-libs/libressl is masked for removal.
+libressl
+curl_ssl_libressl
+
+# Brian Evans <grknight@gentoo.org> (2021-01-07)
+# PHP 7.2 is security vulnerable and end-of-life
+# Please upgrade to a newer slot
+php_targets_php7-2
+php7-2
+
+# Alexis Ballier <aballier@gentoo.org> (2020-10-13)
+# Nothing depends on those ROS messages. dev-ros/geneus
+# is half broken in our setup where it looks for packages
+# on the filesystem and causes build failures.
+# See e.g. bug #741076
+ros_messages_eus
+
 # Hans de Graaff <graaff@gentoo.org> (2020-06-13)
 # Mask Ruby 2.4 as EOL
 ruby_targets_ruby24
-
-# Ben Kohler <bkohler@gentoo.org> (2020-05-15)
-# Mask 9.4 target to match <9.5 package.mask entry
-postgres_targets_postgres9_4
-
-# Matt Turner <mattst88@gentoo.org> (2020-03-25)
-# media-libs/libav is masked for removal
-libav
 
 # Brian Evans <grknight@gentoo.org> (2019-12-19)
 # PHP 7.1 is end of life and has security issues Bug 703326
@@ -43,6 +49,9 @@ php_targets_php7-0
 # Matt Turner <mattst88@gentoo.org> (2018-11-11)
 # d3d9 only works on amd64/x86.
 d3d9
+
+# winssl is for prefix/windows/winnt only
+winssl
 
 # CURL_SSL=winssl is for prefix/windows/winnt only
 curl_ssl_winssl

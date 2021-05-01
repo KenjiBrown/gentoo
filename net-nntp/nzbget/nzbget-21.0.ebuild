@@ -1,9 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit autotools eutils flag-o-matic user systemd
+inherit autotools flag-o-matic user systemd
 
 MY_PV=${PV/_pre/-r}
 MY_P=${PN}-${PV/_pre/-testing-r}
@@ -31,8 +31,8 @@ RDEPEND="dev-libs/libxml2:=
 DEPEND="${RDEPEND}
 	test? (
 		|| (
-			=app-arch/rar-5*
-			=app-arch/unrar-5*
+			app-arch/rar
+			app-arch/unrar
 		)
 	)
 	virtual/pkgconfig"

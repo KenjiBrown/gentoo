@@ -1,10 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-# Using strip-linguas in eutils
-inherit eutils autotools systemd
+inherit l10n autotools systemd
 
 DESCRIPTION="LXDE Display Manager"
 HOMEPAGE="https://wiki.lxde.org/en/LXDM"
@@ -12,15 +11,13 @@ SRC_URI="mirror://sourceforge/lxde/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~ppc x86"
+KEYWORDS="amd64 arm ~arm64 ppc x86"
 
-IUSE="consolekit debug elogind +gtk3 nls pam systemd"
+IUSE="debug elogind nls pam systemd"
 
-DEPEND="consolekit? ( sys-auth/consolekit )
+DEPEND="
 	x11-libs/libxcb
-	gtk3? ( x11-libs/gtk+:3 )
-	!gtk3? ( x11-libs/gtk+:2 )
-	nls? ( sys-devel/gettext )
+	x11-libs/gtk+:3
 	pam? ( sys-libs/pam )"
 # We only use the pam modules and not actually link to the code
 RDEPEND="${DEPEND}
@@ -28,10 +25,12 @@ RDEPEND="${DEPEND}
 	systemd? ( sys-apps/systemd[pam] )
 "
 BDEPEND=">=dev-util/intltool-0.40
-	virtual/pkgconfig"
+	virtual/pkgconfig
+	nls? ( sys-devel/gettext )
+"
 DOCS=( AUTHORS README TODO )
 
-REQUIRED_USE="?? ( consolekit elogind systemd ) elogind? ( pam ) systemd? ( pam )"
+REQUIRED_USE="?? ( elogind systemd ) elogind? ( pam ) systemd? ( pam )"
 
 src_prepare() {
 	# Upstream bug, tarball contains pre-made lxdm.conf
@@ -58,8 +57,8 @@ src_configure() {
 		--with-x \
 		--with-xconn=xcb \
 		--with-systemdsystemunitdir=$(systemd_get_systemunitdir) \
-		$(use_enable consolekit) \
-		$(use_enable gtk3) \
+		--disable-consolekit \
+		--enable-gtk3 \
 		$(use_enable nls) \
 		$(use_enable debug) \
 		$(use_with pam)

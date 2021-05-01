@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( pypy3 python3_{6,7,8} )
+PYTHON_COMPAT=( pypy3 python3_{7,8} )
 # xml.etree.ElementTree module required.
 PYTHON_REQ_USE="xml(+)"
 DISTUTILS_USE_SETUPTOOLS=rdepend
@@ -19,7 +19,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="repoze ZPL BSD HPND GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 
 RDEPEND="acct-group/supervisor"
 

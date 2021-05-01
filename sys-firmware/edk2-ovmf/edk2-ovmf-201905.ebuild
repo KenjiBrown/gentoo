@@ -1,12 +1,12 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PYTHON_REQ_USE="sqlite"
-PYTHON_COMPAT=( python{3_6,3_7} )
+PYTHON_COMPAT=( python3_7 )
 
-inherit eutils python-any-r1 readme.gentoo-r1
+inherit python-any-r1 readme.gentoo-r1
 
 DESCRIPTION="UEFI firmware for 64-bit x86 virtual machines"
 HOMEPAGE="https://github.com/tianocore/edk2"
@@ -36,7 +36,7 @@ else
 		)
 		binary? ( https://dev.gentoo.org/~tamiko/distfiles/${P}-bin.tar.xz )
 		"
-	KEYWORDS="amd64 ~arm64 ~ppc ~ppc64 x86"
+	KEYWORDS="amd64 arm64 ~ppc ppc64 x86"
 	IUSE="+binary"
 	REQUIRED_USE+="
 		!amd64? ( binary )
@@ -96,6 +96,11 @@ pkg_setup() {
 }
 
 src_prepare() {
+	if ! use binary; then
+		sed -i -r \
+			-e "/function SetupPython3/,/\}/{s,\\\$\(whereis python3\),${EPYTHON},g}" \
+			"${S}"/edksetup.sh || die "Fixing for correct Python3 support failed"
+	fi
 	if  [[ ${PV} != "999999" ]] && use binary; then
 		eapply_user
 		return

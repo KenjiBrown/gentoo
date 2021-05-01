@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit desktop eutils perl-module git-r3 xdg-utils
+inherit desktop optfeature perl-module git-r3 xdg-utils
 
 DESCRIPTION="A command line utility for viewing youtube-videos in Mplayer"
 HOMEPAGE="https://trizenx.blogspot.com/2012/03/gtk-youtube-viewer.html"
@@ -17,11 +17,6 @@ IUSE="gtk gtk2"
 
 REQUIRED_USE="gtk2? ( gtk )"
 
-GTK_COMMON_DEPS="
-	dev-perl/File-ShareDir
-	virtual/freedesktop-icon-theme
-	x11-libs/gdk-pixbuf:2[X,jpeg]
-"
 RDEPEND="
 	dev-perl/Data-Dump
 	dev-perl/JSON
@@ -46,7 +41,7 @@ RDEPEND="
 		)
 		dev-perl/File-ShareDir
 		virtual/freedesktop-icon-theme
-		x11-libs/gdk-pixbuf:2[X,jpeg]
+		x11-libs/gdk-pixbuf:2[jpeg]
 	)
 	|| ( >=media-video/ffmpeg-4.1.3[openssl,-libressl] >=media-video/ffmpeg-4.1.3[-openssl,libressl] >=media-video/ffmpeg-4.1.3[gnutls] )
 	|| ( media-video/mpv media-video/mplayer media-video/vlc gtk? ( media-video/smplayer ) )"
@@ -78,7 +73,6 @@ src_install() {
 
 pkg_postinst() {
 	use gtk && xdg_icon_cache_update
-	elog "Optional dependencies:"
 	optfeature "cache support" dev-perl/LWP-UserAgent-Cached
 	optfeature "faster JSON to HASH conversion" dev-perl/JSON-XS
 	optfeature "the case if there are SSL problems" dev-perl/Mozilla-CA

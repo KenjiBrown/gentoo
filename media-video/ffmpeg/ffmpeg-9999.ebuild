@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,7 @@ EAPI=7
 # changes its ABI then this package will be rebuilt needlessly. Hence, such a
 # package is free _not_ to := depend on FFmpeg but I would strongly encourage
 # doing so since such a case is unlikely.
-FFMPEG_SUBSLOT=56.58.58
+FFMPEG_SUBSLOT=57.59.59
 
 SCM=""
 if [ "${PV#9999}" != "${PV}" ] ; then
@@ -21,7 +21,7 @@ if [ "${PV#9999}" != "${PV}" ] ; then
 	EGIT_REPO_URI="https://git.ffmpeg.org/ffmpeg.git"
 fi
 
-inherit eutils flag-o-matic multilib multilib-minimal toolchain-funcs ${SCM}
+inherit flag-o-matic multilib multilib-minimal toolchain-funcs ${SCM}
 
 DESCRIPTION="Complete solution to record/convert/stream audio and video. Includes libavcodec"
 HOMEPAGE="https://ffmpeg.org/"
@@ -98,11 +98,11 @@ FFMPEG_ENCODER_FLAG_MAP=(
 	amrenc:libvo-amrwbenc mp3:libmp3lame
 	kvazaar:libkvazaar libaom
 	openh264:libopenh264 rav1e:librav1e snappy:libsnappy theora:libtheora twolame:libtwolame
-	wavpack:libwavpack webp:libwebp x264:libx264 x265:libx265 xvid:libxvid
+	webp:libwebp x264:libx264 x265:libx265 xvid:libxvid
 )
 
 IUSE="
-	alsa chromium doc +encode oss pic static-libs test v4l
+	alsa chromium doc +encode oss pic sndio static-libs test v4l
 	${FFMPEG_FLAG_MAP[@]%:*}
 	${FFMPEG_ENCODER_FLAG_MAP[@]%:*}
 "
@@ -184,15 +184,14 @@ RDEPEND="
 		amrenc? ( >=media-libs/vo-amrwbenc-0.1.2-r1[${MULTILIB_USEDEP}] )
 		kvazaar? ( >=media-libs/kvazaar-1.2.0[${MULTILIB_USEDEP}] )
 		mp3? ( >=media-sound/lame-3.99.5-r1[${MULTILIB_USEDEP}] )
-		openh264? ( >=media-libs/openh264-1.4.0-r1[${MULTILIB_USEDEP}] )
-		rav1e? ( media-video/rav1e:=[capi] )
+		openh264? ( >=media-libs/openh264-1.4.0-r1:=[${MULTILIB_USEDEP}] )
+		rav1e? ( >=media-video/rav1e-0.4:=[capi] )
 		snappy? ( >=app-arch/snappy-1.1.2-r1:=[${MULTILIB_USEDEP}] )
 		theora? (
 			>=media-libs/libtheora-1.1.1[encode,${MULTILIB_USEDEP}]
 			>=media-libs/libogg-1.3.0[${MULTILIB_USEDEP}]
 		)
 		twolame? ( >=media-sound/twolame-0.3.13-r1[${MULTILIB_USEDEP}] )
-		wavpack? ( >=media-sound/wavpack-4.60.1-r1[${MULTILIB_USEDEP}] )
 		webp? ( >=media-libs/libwebp-0.3.0:=[${MULTILIB_USEDEP}] )
 		x264? ( >=media-libs/x264-0.0.20130506:=[${MULTILIB_USEDEP}] )
 		x265? ( >=media-libs/x265-1.6:=[${MULTILIB_USEDEP}] )
@@ -201,7 +200,7 @@ RDEPEND="
 	fdk? ( >=media-libs/fdk-aac-0.1.3:=[${MULTILIB_USEDEP}] )
 	flite? ( >=app-accessibility/flite-1.4-r4[${MULTILIB_USEDEP}] )
 	fontconfig? ( >=media-libs/fontconfig-2.10.92[${MULTILIB_USEDEP}] )
-	frei0r? ( media-plugins/frei0r-plugins )
+	frei0r? ( media-plugins/frei0r-plugins[${MULTILIB_USEDEP}] )
 	fribidi? ( >=dev-libs/fribidi-0.19.6[${MULTILIB_USEDEP}] )
 	gcrypt? ( >=dev-libs/libgcrypt-1.6:0=[${MULTILIB_USEDEP}] )
 	gme? ( >=media-libs/game-music-emu-0.6.0[${MULTILIB_USEDEP}] )
@@ -214,7 +213,7 @@ RDEPEND="
 		>=sys-libs/libavc1394-0.5.4-r1[${MULTILIB_USEDEP}]
 	)
 	ieee1394? (
-		>=media-libs/libdc1394-2.2.1[${MULTILIB_USEDEP}]
+		>=media-libs/libdc1394-2.2.1:2=[${MULTILIB_USEDEP}]
 		>=sys-libs/libraw1394-2.1.0-r1[${MULTILIB_USEDEP}]
 	)
 	jack? ( virtual/jack[${MULTILIB_USEDEP}] )
@@ -242,6 +241,7 @@ RDEPEND="
 	rubberband? ( >=media-libs/rubberband-1.8.1-r1[${MULTILIB_USEDEP}] )
 	samba? ( >=net-fs/samba-3.6.23-r1[client,${MULTILIB_USEDEP}] )
 	sdl? ( media-libs/libsdl2[sound,video,${MULTILIB_USEDEP}] )
+	sndio? ( media-sound/sndio:=[${MULTILIB_USEDEP}] )
 	speex? ( >=media-libs/speex-1.2_rc1-r1[${MULTILIB_USEDEP}] )
 	srt? ( >=net-libs/srt-1.3.0[${MULTILIB_USEDEP}] )
 	ssh? ( >=net-libs/libssh-0.5.5[${MULTILIB_USEDEP}] )
@@ -365,12 +365,12 @@ multilib_src_configure() {
 
 	# Indevs
 	use v4l || myconf+=( --disable-indev=v4l2 --disable-outdev=v4l2 )
-	for i in alsa oss jack ; do
+	for i in alsa oss jack sndio ; do
 		use ${i} || myconf+=( --disable-indev=${i} )
 	done
 
 	# Outdevs
-	for i in alsa oss ; do
+	for i in alsa oss sndio ; do
 		use ${i} || myconf+=( --disable-outdev=${i} )
 	done
 
@@ -393,7 +393,7 @@ multilib_src_configure() {
 
 	# (temporarily) disable non-multilib deps
 	if ! multilib_is_native_abi; then
-		for i in frei0r librav1e libzmq ; do
+		for i in librav1e libzmq ; do
 			myconf+=( --disable-${i} )
 		done
 	fi
@@ -422,13 +422,13 @@ multilib_src_configure() {
 		break
 	done
 
-	# LTO support, bug #566282
+	# LTO support, bug #566282, bug #754654
 	is-flagq "-flto*" && myconf+=( "--enable-lto" )
+	filter-flags "-flto*"
 
 	# Mandatory configuration
 	myconf=(
 		--enable-avfilter
-		--enable-avresample
 		--disable-stripping
 		# This is only for hardcoded cflags; those are used in configure checks that may
 		# interfere with proper detections, bug #671746 and bug #645778
@@ -473,6 +473,7 @@ multilib_src_configure() {
 		--ar="$(tc-getAR)" \
 		--nm="$(tc-getNM)" \
 		--ranlib="$(tc-getRANLIB)" \
+		--pkg-config="$(tc-getPKG_CONFIG)" \
 		--optflags="${CFLAGS}" \
 		$(use_enable static-libs static) \
 		"${myconf[@]}" \
@@ -551,6 +552,6 @@ multilib_src_install_all() {
 }
 
 multilib_src_test() {
-	LD_LIBRARY_PATH="${BUILD_DIR}/libpostproc:${BUILD_DIR}/libswscale:${BUILD_DIR}/libswresample:${BUILD_DIR}/libavcodec:${BUILD_DIR}/libavdevice:${BUILD_DIR}/libavfilter:${BUILD_DIR}/libavformat:${BUILD_DIR}/libavutil:${BUILD_DIR}/libavresample" \
+	LD_LIBRARY_PATH="${BUILD_DIR}/libpostproc:${BUILD_DIR}/libswscale:${BUILD_DIR}/libswresample:${BUILD_DIR}/libavcodec:${BUILD_DIR}/libavdevice:${BUILD_DIR}/libavfilter:${BUILD_DIR}/libavformat:${BUILD_DIR}/libavutil" \
 		emake V=1 fate
 }

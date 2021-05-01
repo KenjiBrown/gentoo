@@ -1,15 +1,14 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
+	<maintainer type="person" proxied="yes">
 		<email>rion4ik@gmail.com</email>
 		<name>Sergey Ilinykh</name>
 	</maintainer>
-	<maintainer type="project">
+	<maintainer type="project" proxied="proxy">
 		<email>proxy-maint@gentoo.org</email>
 		<name>Proxy Maintainers</name>
 	</maintainer>
-	<longdescription>Configuration tool for Qt-based projects</longdescription>
 	<upstream>
 		<remote-id type="github">psi-plus/qconf</remote-id>
 	</upstream>

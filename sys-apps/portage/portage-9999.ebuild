@@ -1,13 +1,14 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 DISTUTILS_USE_SETUPTOOLS=no
-PYTHON_COMPAT=( pypy3 python3_{6..9} )
+PYTHON_COMPAT=( pypy3 python3_{7..9} )
 PYTHON_REQ_USE='bzip2(+),threads(+)'
+TMPFILES_OPTIONAL=1
 
-inherit distutils-r1 git-r3 linux-info systemd prefix
+inherit distutils-r1 git-r3 linux-info tmpfiles prefix
 
 DESCRIPTION="Portage is the package management and distribution system for Gentoo"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
@@ -15,8 +16,10 @@ HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 LICENSE="GPL-2"
 KEYWORDS=""
 SLOT="0"
-IUSE="apidoc build doc gentoo-dev +ipc +native-extensions +rsync-verify selinux xattr"
+IUSE="apidoc build doc gentoo-dev +ipc +native-extensions +rsync-verify selinux test xattr"
+RESTRICT="!test? ( test )"
 
+BDEPEND="test? ( dev-vcs/git )"
 DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
@@ -29,18 +32,18 @@ DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
 # Require sandbox-2.2 for bug #288863.
 # For whirlpool hash, require python[ssl] (bug #425046).
 # For compgen, require bash[readline] (bug #445576).
-# app-portage/gemato goes without PYTHON_USEDEP since we're calling
-# the executable.
 RDEPEND="
+	acct-user/portage
 	app-arch/zstd
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
+	>=sys-apps/findutils-4.4
 	!build? (
 		>=sys-apps/sed-4.0.5
 		app-shells/bash:0[readline]
 		>=app-admin/eselect-1.2
 		rsync-verify? (
-			>=app-portage/gemato-14[${PYTHON_USEDEP}]
+			>=app-portage/gemato-14.5[${PYTHON_USEDEP}]
 			>=app-crypt/openpgp-keys-gentoo-release-20180706
 			>=app-crypt/gnupg-2.2.4-r2[ssl(-)]
 		)
@@ -126,13 +129,17 @@ python_prepare_all() {
 			-w "/_BINARY/" lib/portage/const.py
 
 		einfo "Prefixing shebangs ..."
+		> "${T}/shebangs" || die
 		while read -r -d $'\0' ; do
 			local shebang=$(head -n1 "$REPLY")
 			if [[ ${shebang} == "#!"* && ! ${shebang} == "#!${EPREFIX}/"* ]] ; then
-				sed -i -e "1s:.*:#!${EPREFIX}${shebang:2}:" "$REPLY" || \
-					die "sed failed"
+				echo "${REPLY}" >> "${T}/shebangs" || die
 			fi
-		done < <(find . -type f ! -name etc-update -print0)
+		done < <(find . -type f -executable ! -name etc-update -print0)
+
+		if [[ -s ${T}/shebangs ]]; then
+			xargs sed -i -e "1s:^#!:#!${EPREFIX}:" < "${T}/shebangs" || die "sed failed"
+		fi
 
 		einfo "Adjusting make.globals, repos.conf and etc-update ..."
 		hprefixify cnf/{make.globals,repos.conf} bin/etc-update
@@ -207,7 +214,7 @@ python_install_all() {
 		esetup.py "${targets[@]}"
 	fi
 
-	systemd_dotmpfilesd "${FILESDIR}"/portage-ccache.conf
+	dotmpfiles "${FILESDIR}"/portage-ccache.conf
 
 	# Due to distutils/python-exec limitations
 	# they must be installed to /usr/bin.
@@ -232,9 +239,13 @@ pkg_preinst() {
 		PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
 		"${PYTHON}" -m portage._compat_upgrade.default_locations || die
 
-	env -u BINPKG_COMPRESS \
+	env -u BINPKG_COMPRESS -u PORTAGE_REPOSITORIES \
 		PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
 		"${PYTHON}" -m portage._compat_upgrade.binpkg_compression || die
+
+	env -u FEATURES -u PORTAGE_REPOSITORIES \
+		PYTHONPATH="${D}${sitedir}${PYTHONPATH:+:${PYTHONPATH}}" \
+		"${PYTHON}" -m portage._compat_upgrade.binpkg_multi_instance || die
 
 	# elog dir must exist to avoid logrotate error for bug #415911.
 	# This code runs in preinst in order to bypass the mapping of

@@ -1,7 +1,7 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 inherit flag-o-matic linux-info systemd
 
 #Set this variable to the required external ell version
@@ -21,21 +21,31 @@ HOMEPAGE="https://git.kernel.org/pub/scm/network/wireless/iwd.git/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+client +crda +monitor ofono wired cpu_flags_x86_aes cpu_flags_x86_ssse3"
+IUSE="+client +crda +monitor ofono wired cpu_flags_x86_aes cpu_flags_x86_ssse3
+standalone systemd"
 
-COMMON_DEPEND="sys-apps/dbus
-	client? ( sys-libs/readline:0= )"
+DEPEND="
+	sys-apps/dbus
+	client? ( sys-libs/readline:0= )
+"
 
-[[ -z "${ELL_REQ}" ]] || COMMON_DEPEND+=" >=dev-libs/ell-${ELL_REQ}"
+[[ -z "${ELL_REQ}" ]] || DEPEND+=" ~dev-libs/ell-${ELL_REQ}"
 
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="
+	${DEPEND}
 	net-wireless/wireless-regdb
-	crda? ( net-wireless/crda )"
+	crda? ( net-wireless/crda )
+	standalone? (
+		systemd? ( sys-apps/systemd )
+		!systemd? ( virtual/resolvconf )
+	)
+"
 
-DEPEND="${COMMON_DEPEND}
-	virtual/pkgconfig"
+BDEPEND="
+	virtual/pkgconfig
+"
 
-[[ ${PV} == *9999* ]] && DEPEND+=" dev-python/docutils"
+[[ ${PV} == *9999* ]] && BDEPEND+=" dev-python/docutils"
 
 pkg_setup() {
 	CONFIG_CHECK="
@@ -91,6 +101,10 @@ pkg_setup() {
 	check_extra_config
 
 	if ! use crda; then
+		if use kernel_linux && kernel_is -lt 4 15; then
+			ewarn "POSSIBLE REGULATORY DOMAIN PROBLEM:"
+			ewarn "Regulatory domain support for kernels older than 4.15 requires crda."
+		fi
 		if linux_config_exists && linux_chkconfig_builtin CFG80211 &&
 			[[ $(linux_chkconfig_string EXTRA_FIRMWARE) != *regulatory.db* ]]
 		then
@@ -150,5 +164,15 @@ src_install() {
 	if [[ ${PV} == *9999* ]] ; then
 		exeinto /usr/share/iwd/scripts/
 		doexe test/*
+	fi
+
+	if use standalone ; then
+		local iwdconf="${ED}/etc/iwd/main.conf"
+		dodir /etc/iwd
+		echo "[General]" > "${iwdconf}"
+		echo "EnableNetworkConfiguration=true" >> "${iwdconf}"
+		echo "[Network]" >> "${iwdconf}"
+		echo "NameResolvingService=$(usex systemd systemd resolvconf)" >> "${iwdconf}"
+		echo "rc_provide=\"net\"" > ${ED}/etc/conf.d/iwd
 	fi
 }

@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils flag-o-matic multilib toolchain-funcs xdg-utils
+inherit flag-o-matic multilib toolchain-funcs xdg-utils
 
 DESCRIPTION="A portable, bytecode-compiled implementation of Common Lisp"
 HOMEPAGE="https://clisp.sourceforge.io/"
@@ -21,7 +21,7 @@ RDEPEND=">=dev-lisp/asdf-2.33-r3
 		 >=dev-libs/ffcall-1.10
 		 dbus? ( sys-apps/dbus )
 		 fastcgi? ( dev-libs/fcgi )
-		 gdbm? ( sys-libs/gdbm )
+		 gdbm? ( sys-libs/gdbm:0= )
 		 gtk? ( >=x11-libs/gtk+-2.10:2 >=gnome-base/libglade-2.6 )
 		 postgres? ( >=dev-db/postgresql-8.0:* )
 		 readline? ( >=sys-libs/readline-7.0:0= )

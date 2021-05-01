@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -16,7 +16,7 @@ else
 	inherit vcs-snapshot
 	commit=0dbe8fb2eaa608a6540df3d269648a596c29cf4b
 	SRC_URI="https://github.com/dolphin-emu/dolphin/archive/${commit}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64"
+	KEYWORDS="amd64 ~arm64"
 fi
 
 DESCRIPTION="Gamecube and Wii game emulator"
@@ -148,7 +148,7 @@ src_configure() {
 		-DUSE_SHARED_ENET=ON
 		-DUSE_UPNP=$(usex upnp)
 
-		# Undo cmake-utils.eclass's defaults.
+		# Undo cmake.eclass's defaults.
 		# All dolphin's libraries are private
 		# and rely on circular dependency resolution.
 		-DBUILD_SHARED_LIBS=OFF

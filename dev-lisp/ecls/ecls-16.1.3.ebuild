@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils multilib
+inherit multilib
 
 # test phase only works if ecls already installed #516876
 RESTRICT="test"
@@ -20,7 +20,7 @@ KEYWORDS="amd64 ~ppc ~sparc x86"
 IUSE="cxx debug emacs gengc precisegc cpu_flags_x86_sse +threads +unicode +libatomic X"
 
 CDEPEND="dev-libs/gmp:0
-		virtual/libffi
+		dev-libs/libffi
 		libatomic? ( dev-libs/libatomic_ops )
 		>=dev-libs/boehm-gc-7.1[threads?]
 		>=dev-lisp/asdf-2.33-r3:="

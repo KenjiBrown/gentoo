@@ -1,9 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit eutils flag-o-matic multilib user
+inherit flag-o-matic user
 
 DESCRIPTION="50+ standard plugins for Icinga, Naemon, Nagios, Shinken, Sensu"
 HOMEPAGE="https://www.monitoring-plugins.org/"
@@ -11,7 +11,7 @@ SRC_URI="https://www.monitoring-plugins.org/download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~sparc ~x86"
+KEYWORDS="amd64 ~arm ~arm64 sparc x86"
 IUSE="gnutls ipv6 ldap libressl mysql dns fping game postgres radius samba snmp ssh +ssl"
 
 # Most of the plugins use automagic dependencies, i.e. the plugin will

@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Gentoo Authors
+# Copyright 2013-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: multilib-build.eclass
@@ -47,8 +47,6 @@ _MULTILIB_FLAGS=(
 	abi_mips_o32:o32
 #	abi_ppc_32:ppc,ppc_aix,ppc_macos
 #	abi_ppc_64:ppc64
-	abi_riscv_lp64d:lp64d
-	abi_riscv_lp64:lp64
 	abi_s390_32:s390
 	abi_s390_64:s390x
 )
@@ -491,14 +489,6 @@ multilib_prepare_wrappers() {
 #	elif(_MIPS_SIM == _ABIO32) /* o32 */
 #		error "abi_mips_o32 not supported by the package."
 #	endif
-#elif defined(__riscv)
-#	if defined(__riscv_float_abi_double)
-#		error "abi_riscv_lp64d not supported by the package."
-#	elif defined(__riscv_float_abi_single)
-#		error "abi_riscv_lp64f not supported by the package."
-#	else
-#		error "abi_riscv_lp64 not supported by the package."
-#	endif
 #elif defined(__sparc__)
 #	if defined(__arch64__)
 #		error "abi_sparc_64 not supported by the package."
@@ -673,7 +663,6 @@ multilib_native_with() {
 # of <false1> (or 'no' if unspecified) and <false2>. Arguments
 # are the same as for usex in the EAPI.
 #
-# Note: in EAPI 4 you need to inherit eutils to use this function.
 multilib_native_usex() {
 	if multilib_is_native_abi; then
 		usex "${@}"

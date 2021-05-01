@@ -1,12 +1,13 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
+TMPFILES_OPTIONAL=1
 
-inherit python-any-r1 prefix eutils toolchain-funcs flag-o-matic gnuconfig \
-	multilib systemd multiprocessing
+inherit python-any-r1 prefix toolchain-funcs flag-o-matic gnuconfig \
+	multilib systemd multiprocessing tmpfiles
 
 DESCRIPTION="GNU libc C library"
 HOMEPAGE="https://www.gnu.org/software/libc/"
@@ -19,7 +20,7 @@ if [[ ${PV} == 9999* ]]; then
 	EGIT_REPO_URI="https://sourceware.org/git/glibc.git"
 	inherit git-r3
 else
-	KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 sparc ~x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 	SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 fi
 
@@ -1328,7 +1329,7 @@ glibc_do_src_install() {
 		sed -i "${nscd_args[@]}" "${ED}"/etc/init.d/nscd
 
 		systemd_dounit nscd/nscd.service
-		systemd_newtmpfilesd nscd/nscd.tmpfiles nscd.conf
+		newtmpfiles nscd/nscd.tmpfiles nscd.conf
 	else
 		# Do this since extra/etc/*.conf above might have nscd.conf.
 		rm -f "${ED}"/etc/nscd.conf

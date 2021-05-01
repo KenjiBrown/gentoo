@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -17,7 +17,6 @@ EXTERNAL_PROGS="
 	https://raw.githubusercontent.com/ament/ament_lint/${AMENT_LINT_VER}/ament_cpplint/ament_cpplint/cpplint.py -> ${P}-ament-${AMENT_LINT_VER}-cpplint.py
 "
 if [ "${PV#9999}" != "${PV}" ] ; then
-	KEYWORDS=""
 	SRC_URI="${EXTERNAL_PROGS}"
 else
 	KEYWORDS="~amd64 ~arm"
@@ -26,7 +25,7 @@ else
 fi
 
 DESCRIPTION="A ROS-independent package for logging into rosconsole/rosout"
-HOMEPAGE="http://wiki.ros.org/console_bridge"
+HOMEPAGE="https://wiki.ros.org/console_bridge"
 LICENSE="BSD"
 SLOT="0/1"
 IUSE="test"
@@ -39,6 +38,7 @@ BDEPEND="
 		dev-util/cppcheck
 	)
 "
+PATCHES=( "${FILESDIR}/tests.patch" )
 
 src_prepare() {
 	# Avoid wgeting it. #733704

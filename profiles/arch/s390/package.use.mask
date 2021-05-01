@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Mikle Kolyada <zlogene@gentoo.org> (2020-07-13)
-# Luajit does not work on s390
-app-text/texlive-core luajittex
+# Matt Turner <mattst88@gentoo.org> (2020-08-11)
+# No drivers on this architecture support Vulkan
+media-libs/mesa vulkan vulkan-overlay zink
 
 # Hans de Graaff <graaff@gentoo.org> (2019-04-08)
 # Obsolete ruby version, no newer versions keyworded or stable.
@@ -11,30 +11,21 @@ dev-vcs/subversion ruby
 
 # Mikle Kolyada <zlogene@gentoo.org> (2018-06-03)
 # Not tested
-app-crypt/pinentry fltk
 dev-python/cssselect doc
-dev-vcs/subversion kwallet
 # not really interested in supporting alternative
-# VCS for oberlays yet.
+# VCS for overlays yet.
 app-portage/layman darcs mercurial
 dev-python/setuptools_scm test
 # no lua support for vim
-app-editors/vim luajit lua
+app-editors/vim lua
 # not keyworded yet
 media-gfx/imagemagick raw
 dev-db/mariadb numa
-# ipython is not really tested
-dev-python/restkit cli
 # not tested yet
 app-misc/mc samba
 app-arch/rpm test
 # no ceph keyworded
 net-analyzer/rrdtool rados
-
-
-# Michał Górny <mgorny@gentoo.org> (2017-08-08)
-# Required VIDEO_CARDS=i965/radeonsi, both masked in this profile.
-media-libs/mesa vulkan vulkan-overlay
 
 # Robin H. Johnson <robbat2@gentoo.org> (2017-08-05)
 # Upstream Git is switching to PCRE2 w/ JIT.
@@ -42,7 +33,7 @@ media-libs/mesa vulkan vulkan-overlay
 dev-vcs/git pcre-jit
 
 # Lars Wendler <polynomial-c@gentoo.org> (2016-11-17)
-# jit not supported on ia64 (bug #600052).
+# jit not supported on s390
 dev-libs/libpcre2 jit
 
 # Sergey Popov <pinkbyte@gentoo.org> (2015-10-24)

@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{7..9} pypy3 )
 
 inherit distutils-r1
 
@@ -13,7 +13,7 @@ SRC_URI="https://codeload.github.com/ValvePython/${PN}/tar.gz/v${PV} -> ${P}.tar
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.2-mock_from_stdlib.patch

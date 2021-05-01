@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8} )
+PYTHON_COMPAT=( python3_{7,8} )
 
 inherit meson python-any-r1
 
@@ -21,13 +21,13 @@ SRC_URI="https://github.com/Snaipe/Criterion/archive/${CRITERION_COMMIT}.tar.gz 
 
 LICENSE="BSD-2 MIT ZLIB"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS="amd64 ~arm ~arm64 ~x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="dev-libs/nanomsg:=
 	dev-libs/libgit2:=
-	virtual/libffi:="
+	dev-libs/libffi:="
 DEPEND="${RDEPEND}
 	dev-libs/boxfort
 	test? (

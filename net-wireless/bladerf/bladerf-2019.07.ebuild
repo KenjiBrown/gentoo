@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -24,7 +24,6 @@ MY_PN="bladeRF"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/Nuand/${MY_PN}.git"
-	KEYWORDS="amd64 x86"
 else
 	MY_PV=${PV/\_/-}
 	S="${WORKDIR}/${MY_PN}-${MY_PV}"
@@ -40,6 +39,10 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}"
 PDEPEND=">=net-wireless/bladerf-firmware-2.3.2
 	>=net-wireless/bladerf-fpga-0.11.0"
+
+PATCHES=(
+	"${FILESDIR}/${P}-gcc10.patch"
+)
 
 src_unpack() {
 	if [ "${PV}" = "9999" ]; then

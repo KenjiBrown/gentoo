@@ -5,7 +5,7 @@
 	<email>zlogene@gentoo.org</email>
 	<name>Mikle Kolyada</name>
 </maintainer>
-<use>
-	<flag name="utils">Install pwqcheck and pwqgen helper utilities</flag>
-</use>
+<upstream>
+	<remote-id type="github">openwall/passwdqc</remote-id>
+</upstream>
 </pkgmetadata>

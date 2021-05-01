@@ -1,9 +1,9 @@
-# Copyright 2009-2020 Gentoo Authors
+# Copyright 2009-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 CMAKE_MAKEFILE_GENERATOR="emake"
-PYTHON_COMPAT=(python{3_6,3_7,3_8})
+PYTHON_COMPAT=(python{3_7,3_8,3_9})
 
 inherit cmake flag-o-matic python-single-r1 xdg-utils
 
@@ -30,7 +30,7 @@ fi
 LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64 ~ppc ~ppc64 x86"
-IUSE="audiofile +dbus dcc_video debug doc gsm kde libressl +nls oss +perl +phonon profile +python spell +ssl theora webkit"
+IUSE="audiofile +dbus dcc_video debug doc gsm kde +nls oss +perl +phonon profile +python spell +ssl theora webkit"
 REQUIRED_USE="audiofile? ( oss ) python? ( ${PYTHON_REQUIRED_USE} )"
 
 BDEPEND="dev-lang/perl:0
@@ -66,10 +66,7 @@ DEPEND="dev-qt/qtcore:5
 	phonon? ( media-libs/phonon[qt5(+)] )
 	python? ( ${PYTHON_DEPS} )
 	spell? ( app-text/enchant:0= )
-	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( dev-libs/libressl:0= )
-	)
+	ssl? ( dev-libs/openssl:0= )
 	theora? (
 		media-libs/libogg
 		media-libs/libtheora
@@ -141,11 +138,9 @@ src_configure() {
 		-DWANT_QTSVG=OFF
 	)
 	if use python; then
-		local PYTHON_INCLUDEDIR PYTHON_LIBPATH
-		python_export PYTHON_INCLUDEDIR PYTHON_LIBPATH
 		mycmakeargs+=(
-			-DPython3_INCLUDE_DIR="${PYTHON_INCLUDEDIR}"
-			-DPython3_LIBRARY="${PYTHON_LIBPATH}"
+			-DPython3_INCLUDE_DIR="$(python_get_includedir)"
+			-DPython3_LIBRARY="$(python_get_library_path)"
 		)
 	fi
 

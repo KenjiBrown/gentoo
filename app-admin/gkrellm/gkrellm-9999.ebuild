@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,14 +11,14 @@ DESCRIPTION="Single process stack of various system monitors"
 HOMEPAGE="http://www.gkrellm.net/"
 if [[ "${PV}" == 9999 ]] ; then
 	inherit git-r3
-	EGIT_REPO_URI="https://git.srcbox.net/gkrellm"
+	EGIT_REPO_URI="https://git.srcbox.net/gkrellm/gkrellm.git"
 else
 	SRC_URI="http://gkrellm.srcbox.net/${MY_P}.tar.bz2"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 LICENSE="GPL-3"
 SLOT="2"
-IUSE="gnutls hddtemp libressl lm-sensors nls ntlm ssl kernel_FreeBSD X"
+IUSE="gnutls hddtemp lm-sensors nls ntlm ssl kernel_FreeBSD X"
 
 RDEPEND="
 	acct-group/gkrellmd
@@ -28,8 +28,7 @@ RDEPEND="
 	ssl? (
 		gnutls? ( net-libs/gnutls )
 		!gnutls? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:0= )
+			dev-libs/openssl:0=
 		)
 	)
 	lm-sensors? ( sys-apps/lm-sensors:= )

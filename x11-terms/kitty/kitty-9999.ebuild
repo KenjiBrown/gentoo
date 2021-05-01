@@ -1,11 +1,11 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PYTHON_COMPAT=( python3_{7,8} )
 
-inherit eutils python-single-r1 toolchain-funcs xdg
+inherit optfeature python-single-r1 toolchain-funcs xdg
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://github.com/kovidgoyal/kitty.git"
@@ -30,6 +30,7 @@ RDEPEND="
 	>=media-libs/harfbuzz-1.5.0:=
 	media-libs/libcanberra
 	media-libs/libpng:0=
+	media-libs/lcms
 	sys-apps/dbus
 	sys-libs/zlib
 	x11-libs/libxcb[xkb]
@@ -56,8 +57,8 @@ BDEPEND="virtual/pkgconfig"
 	$(python_gen_cond_dep '>=dev-python/sphinx-1.7[${PYTHON_MULTI_USEDEP}]')"
 
 PATCHES=(
-	"${FILESDIR}"/kitty-0.17.2-flags.patch
-	"${FILESDIR}"/kitty-0.16.0-remove-terminfo.patch
+	"${FILESDIR}"/${P}-flags.patch
+	"${FILESDIR}"/${P}-remove-terminfo.patch
 	"${FILESDIR}"/${PN}-0.14.4-svg-icon.patch
 )
 
@@ -79,6 +80,7 @@ src_compile() {
 	"${EPYTHON}" setup.py \
 		--verbose $(usex debug --debug "") \
 		--libdir-name $(get_libdir) \
+		--update-check-interval=0 \
 		linux-package || die "Failed to compile kitty."
 }
 

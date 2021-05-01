@@ -1,9 +1,9 @@
-# Copyright 2016-2020 Gentoo Authors
+# Copyright 2016-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit eutils java-pkg-2 java-ant-2
+inherit java-pkg-2 java-ant-2
 
 DESCRIPTION="GNU Prolog for Java is an implementation of ISO Prolog as a Java library"
 HOMEPAGE="https://www.gnu.org/software/gnuprologjava"
@@ -11,7 +11,7 @@ SRC_URI="mirror://gnu/gnuprologjava/${P}-src.zip"
 
 LICENSE="LGPL-3+"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="doc"
 
 BDEPEND="app-arch/unzip"

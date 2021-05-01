@@ -1,9 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7,8,9} )
+PYTHON_COMPAT=( python3_{7,8,9} )
 inherit python-single-r1 xdg desktop
 
 DESCRIPTION="Collection of tools useful for audio production"
@@ -12,7 +12,6 @@ HOMEPAGE="https://kxstudio.linuxaudio.org/Applications:Cadence"
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/falkTX/Cadence.git"
-	KEYWORDS=""
 else
 	SRC_URI="https://github.com/falkTX/Cadence/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64"
@@ -32,13 +31,17 @@ CDEPEND="
 		dev-python/dbus-python[${PYTHON_MULTI_USEDEP}]
 		dev-python/PyQt5[dbus,gui,opengl?,svg,widgets,${PYTHON_MULTI_USEDEP}]
 	')
-	media-sound/jack2[dbus]
 	media-sound/jack_capture
+	virtual/jack
 	a2jmidid? ( media-sound/a2jmidid[dbus] )
 	pulseaudio? ( media-sound/pulseaudio[jack] )
 "
 RDEPEND="${CDEPEND}"
 DEPEND="${CDEPEND}"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.9.1-fix-clang.patch
+)
 
 src_prepare() {
 	sed -i -e "s/python3/${EPYTHON}/" \

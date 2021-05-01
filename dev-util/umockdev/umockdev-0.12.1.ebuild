@@ -1,8 +1,8 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python3_6 )
+PYTHON_COMPAT=( python3_{7..9} )
 
 inherit multilib-minimal python-any-r1
 
@@ -12,7 +12,7 @@ SRC_URI="https://github.com/martinpitt/umockdev/releases/download/${PV}/${P}.tar
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 x86"
 IUSE="+introspection static-libs test"
 RESTRICT="!test? ( test )"
 
@@ -24,8 +24,9 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	test? (
 		${PYTHON_DEPS}
-		dev-libs/libgudev:=[${MULTILIB_USEDEP}] )
+	)
 	app-arch/xz-utils
+	dev-libs/libgudev[${MULTILIB_USEDEP}]
 	>=dev-util/gtk-doc-am-1.14
 	virtual/pkgconfig
 "

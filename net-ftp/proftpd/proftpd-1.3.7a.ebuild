@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -26,7 +26,7 @@ SRC_URI="ftp://ftp.proftpd.org/distrib/source/${P/_/}.tar.gz
 LICENSE="GPL-2"
 
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~mips ppc ppc64 sparc x86"
 IUSE="acl authfile ban +caps case clamav copy ctrls deflate diskuse dso dynmasq exec ifsession ifversion ident ipv6
 	kerberos ldap libressl log-forensic memcache msg mysql ncurses nls pam +pcre postgres qos radius
 	ratio readme rewrite selinux sftp shaper sitemisc snmp sodium softquota sqlite ssl tcpd test unique-id vroot"
@@ -266,7 +266,7 @@ src_install() {
 	dodoc doc/rfc/*.txt
 
 	systemd_dounit       "${FILESDIR}"/${PN}.service
-	systemd_newtmpfilesd "${FILESDIR}"/${PN}-tmpfiles.d.conf-r1 ${PN}.conf
+	newtmpfiles "${FILESDIR}"/${PN}-tmpfiles.d.conf-r1 ${PN}.conf
 }
 
 pkg_postinst() {

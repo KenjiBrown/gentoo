@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6..9} pypy3 )
+PYTHON_COMPAT=( python3_{7..9} pypy3 )
 
 inherit distutils-r1
 
@@ -12,7 +12,7 @@ HOMEPAGE="https://pypi.org/project/iocapture/"
 SRC_URI="https://github.com/oinume/iocapture/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ~ppc x86"
+KEYWORDS="amd64 ~arm arm64 ~ppc x86"
 LICENSE="MIT"
 
 BDEPEND="

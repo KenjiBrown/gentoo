@@ -1,12 +1,11 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
 FORTRAN_STANDARD="90"
-PYTHON_COMPAT=( python2_7 )
 
-inherit eutils flag-o-matic fortran-2 multilib multiprocessing python-any-r1 toolchain-funcs
+inherit epatch flag-o-matic fortran-2 multilib multiprocessing toolchain-funcs
 
 DESCRIPTION="Message-passing parallel language and runtime system"
 HOMEPAGE="http://charm.cs.uiuc.edu/"
@@ -15,34 +14,20 @@ SRC_URI="http://charm.cs.uiuc.edu/distrib/${P}.tar.gz"
 LICENSE="charm"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="charmdebug charmtracing charmproduction cmkopt doc examples mlogft mpi ampi numa smp static-libs syncft tcp"
+IUSE="charmdebug charmtracing charmproduction cmkopt examples mlogft mpi ampi numa smp static-libs syncft tcp"
 
 RDEPEND="mpi? ( virtual/mpi )"
 DEPEND="
 	${RDEPEND}
-	doc? (
-		>=app-text/poppler-0.12.3-r3[utils]
-		dev-tex/latex2html
-		virtual/tex-base
-		$(python_gen_any_dep '
-			>=dev-python/beautifulsoup-4[${PYTHON_USEDEP}]
-			dev-python/lxml[${PYTHON_USEDEP}]
-		')
-		media-libs/netpbm
-		${PYTHON_DEPS}
-	)
 	net-libs/libtirpc
-	"
+	virtual/pkgconfig
+"
 
 REQUIRED_USE="
 	cmkopt? ( !charmdebug !charmtracing )
 	charmproduction? ( !charmdebug !charmtracing )"
 
 S="${WORKDIR}/${PN}-v${PV}"
-
-pkg_setup() {
-	use doc && python-any-r1_pkg_setup
-}
 
 get_opts() {
 	local CHARM_OPTS
@@ -73,7 +58,7 @@ get_opts() {
 	fi
 
 	CHARM_OPTS+="$(usex numa ' --with-numa' '')"
-	echo $CHARM_OPTS
+	echo ${CHARM_OPTS}
 }
 
 src_prepare() {
@@ -129,11 +114,6 @@ src_compile() {
 		einfo "running ./build AMPI ${build_commandline}"
 		./build AMPI ${build_commandline} || die "Failed to build charm++"
 	fi
-
-	# make pdf/html docs
-	if use doc; then
-		emake -j1 -C doc/charm++
-	fi
 }
 
 src_test() {
@@ -175,7 +155,7 @@ src_install() {
 
 	# Install libs incl. charm objects
 	for i in lib*/*.{so,a}; do
-		[[ ${i} = *.a ]] && use !static-libs && continue
+		[[ ${i} = *.a ]] && ! use static-libs && continue
 		if [[ -L ${i} ]]; then
 			i=$(readlink -e "${i}") || die
 		fi
@@ -197,17 +177,6 @@ src_install() {
 		insinto /usr/share/doc/${PF}/examples
 		doins -r examples/charm++/*
 		docompress -x /usr/share/doc/${PF}/examples
-	fi
-
-	# Install pdf/html docs
-	if use doc; then
-		cd "${S}/doc/charm++"
-		# Install pdfs.
-		insinto /usr/share/doc/${PF}/pdf
-		doins  *.pdf
-		# Install html.
-		docinto html
-		dohtml -r manual/*
 	fi
 }
 

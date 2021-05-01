@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -12,7 +12,7 @@ SRC_URI="mirror://nongnu/${PN}/${P/_/-}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 [[ "${PV}" == *beta* ]] || \
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="selinux ibm static kernel_FreeBSD"
 
 CDEPEND="
@@ -125,7 +125,7 @@ pkg_postinst() {
 	# Reload init to fix unmounting problems of / on next reboot.
 	# This is really needed, as without the new version of init cause init
 	# not to quit properly on reboot, and causes a fsck of / on next reboot.
-	if [[ ${ROOT} == / ]] ; then
+	if [[ -z ${ROOT} ]] ; then
 		if [[ -e /dev/initctl ]] && [[ ! -e /run/initctl ]] ; then
 			ln -s /dev/initctl /run/initctl \
 				|| ewarn "Failed to set /run/initctl symlink!"

@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -23,8 +23,7 @@ RDEPEND="dev-libs/libev
 	x11-libs/xcb-util-image
 	x11-libs/xcb-util-renderutil
 	config-file? (
-		dev-libs/libconfig
-		dev-libs/libxdg-basedir
+		dev-libs/libconfig:=
 	)
 	dbus? ( sys-apps/dbus )
 	drm? ( x11-libs/libdrm )
@@ -36,6 +35,8 @@ DEPEND="${RDEPEND}
 BDEPEND="virtual/pkgconfig
 	doc? ( app-text/asciidoc )"
 
+DOCS=( README.md picom.sample.conf )
+
 src_configure() {
 	local emesonargs=(
 		$(meson_use config-file config_file)
@@ -46,5 +47,4 @@ src_configure() {
 	)
 
 	meson_src_configure
-
 }

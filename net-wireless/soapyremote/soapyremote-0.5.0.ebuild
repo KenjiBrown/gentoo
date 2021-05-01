@@ -1,9 +1,7 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-
-PYTHON_COMPAT=( python2_7 python3_6 )
 
 inherit cmake-utils
 
@@ -13,7 +11,6 @@ HOMEPAGE="https://github.com/pothosware/SoapyRemote"
 if [ "${PV}" = "9999" ]; then
 	EGIT_REPO_URI="https://github.com/pothosware/SoapyRemote.git"
 	EGIT_CLONE_TYPE="shallow"
-	KEYWORDS=""
 	inherit git-r3
 else
 	KEYWORDS="~amd64 ~x86"

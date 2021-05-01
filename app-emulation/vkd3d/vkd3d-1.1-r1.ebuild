@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,7 +9,7 @@ if [[ "${PV}" == "9999" ]]; then
 	EGIT_REPO_URI="https://source.winehq.org/git/vkd3d.git"
 	inherit git-r3
 else
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 	SRC_URI="https://dl.winehq.org/vkd3d/source/${P}.tar.xz"
 fi
 
@@ -31,7 +31,7 @@ LICENSE="LGPL-2.1"
 SLOT="0"
 
 PATCHES=(
-        "${FILESDIR}"/${P}-Fix-build.patch
+	"${FILESDIR}"/${P}-Fix-build.patch
 )
 
 multilib_src_configure() {
@@ -39,5 +39,5 @@ multilib_src_configure() {
 		$(use_with spirv-tools)
 	)
 
-	ECONF_SOURCE=${S} econf "${myconf[@]}"
+	ECONF_SOURCE="${S}" econf "${myconf[@]}"
 }

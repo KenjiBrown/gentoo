@@ -1,8 +1,9 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
+CMAKE_ECLASS=cmake
 inherit cmake-multilib
 
 DESCRIPTION="A free OpenGL utility toolkit, the open-sourced alternative to the GLUT library"
@@ -11,7 +12,7 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="debug static-libs"
 
 # enabling GLES support seems to cause build failures
@@ -32,6 +33,7 @@ HTML_DOCS=( doc/. )
 
 src_configure() {
 	local mycmakeargs=(
+#		"-DOpenGL_GL_PREFERENCE=GLVND" # bug 721006
 		"-DFREEGLUT_GLES=OFF"
 		"-DFREEGLUT_BUILD_DEMOS=OFF"
 		"-DFREEGLUT_BUILD_STATIC_LIBS=$(usex static-libs ON OFF)"
@@ -41,6 +43,6 @@ src_configure() {
 }
 
 multilib_src_install() {
-	cmake-utils_src_install
-	cp "${D}"/usr/$(get_libdir)/pkgconfig/{,free}glut.pc
+	cmake_src_install
+	cp "${ED}"/usr/$(get_libdir)/pkgconfig/{,free}glut.pc || die
 }

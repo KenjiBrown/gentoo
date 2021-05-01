@@ -1,10 +1,10 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 PYTHON_COMPAT=( python3_{7,8,9} )
-inherit eutils python-r1
+inherit optfeature python-r1
 
 DESCRIPTION="Stylish way of giving presentations with Python"
 HOMEPAGE="http://impressive.sourceforge.net/"
@@ -39,7 +39,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "The experience with ${PN^} can be enhanced by folowing packages:"
 	optfeature "starting web or e-mail hyperlinks from PDF documents" x11-misc/xdg-utils
 	optfeature "sound and video playback" media-video/ffmpeg
 	optfeature "sound and video playback" media-video/mplayer

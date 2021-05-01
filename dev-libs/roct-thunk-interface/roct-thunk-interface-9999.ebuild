@@ -20,8 +20,7 @@ CONFIG_CHECK="~HSA_AMD ~HMM_MIRROR ~ZONE_DEVICE ~DRM_AMDGPU ~DRM_AMDGPU_USERPTR"
 LICENSE="MIT"
 SLOT="0/$(ver_cut 1-2)"
 
-RDEPEND="sys-process/numactl
-	sys-apps/pciutils"
+RDEPEND="sys-process/numactl"
 DEPEND="${RDEPEND}"
 
 src_prepare() {
@@ -33,10 +32,4 @@ src_configure() {
 		-DCPACK_PACKAGING_INSTALL_PREFIX="${EPREFIX}/usr"
 	)
 	cmake_src_configure
-}
-src_compile() {
-	cmake_src_compile build-dev
-}
-src_install() {
-	cmake_src_install install-dev
 }

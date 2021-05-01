@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kernel-2.eclass
@@ -25,6 +25,13 @@
 # this is useful for things like wolk. IE:
 # EXTRAVERSION would be something like : -wolk-4.19-r1
 
+# @ECLASS-VARIABLE:  K_NODRYRUN
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# if this is set then patch --dry-run will not 
+# be run. Certain patches will fail with this parameter
+# See bug #507656
+
 # @ECLASS-VARIABLE:  K_NOSETEXTRAVERSION
 # @DEFAULT_UNSET
 # @DESCRIPTION:
@@ -46,10 +53,10 @@
 # @ECLASS-VARIABLE: K_PREPATCHED
 # @DEFAULT_UNSET
 # @DESCRIPTION:
-# if the patchset is prepatched (ie: mm-sources,
-# ck-sources, ac-sources) it will use PR (ie: -r5) as
-# the patchset version for
-# and not use it as a true package revision
+# if the patchset is prepatched (ie: pf-sources,
+# zen-sources etc) it will use PR (ie: -r5) as the
+# patchset version for and not use it as a true package
+# revision
 
 # @ECLASS-VARIABLE:  K_EXTRAEINFO
 # @DEFAULT_UNSET
@@ -1151,7 +1158,7 @@ unipatch() {
 		if echo ${i} | grep -qs -e "\.tar" -e "\.tbz" -e "\.tgz" ; then
 			if [ -n "${UNIPATCH_STRICTORDER}" ]; then
 				unset z
-				STRICT_COUNT=$((10#${STRICT_COUNT} + 1))
+				STRICT_COUNT=$((10#${STRICT_COUNT:=0} + 1))
 				for((y=0; y<$((6 - ${#STRICT_COUNT})); y++));
 					do z="${z}0";
 				done
@@ -1200,7 +1207,7 @@ unipatch() {
 
 				if [ -n "${UNIPATCH_STRICTORDER}" ]; then
 					unset z
-					STRICT_COUNT=$((10#${STRICT_COUNT} + 1))
+					STRICT_COUNT=$((10#${STRICT_COUNT:=0} + 1))
 					for((y=0; y<$((6 - ${#STRICT_COUNT})); y++));
 						do z="${z}0";
 					done
@@ -1234,8 +1241,32 @@ unipatch() {
 			local GCC_MAJOR_VER=$(gcc-major-version)
 			local GCC_MINOR_VER=$(gcc-minor-version)
 
-			# optimization patch for gcc < 8.X and kernel > 4.13
-			if kernel_is ge 4 13 ; then 
+			# this section should be the target state to handle the cpu opt
+			# patch for kernels > 4.19.189, 5.4.115, 5.10.33 and 5.11.17,
+			# 5.12.0 and gcc >= 9  The patch now handles the
+			# gcc version enabled on the system through the Kconfig file as
+			# 'depends'. The legacy section can hopefully be retired in the future
+			# Note the patch for 4.19-5.8 version are the same and the patch for 
+			# 5.8+ version is the same
+			# eventually we can remove everything except the gcc ver <9 check
+			# based on stablization, time, kernel removals or a combo of all three
+			if ( kernel_is eq 4 19 && kernel_is gt 4 19 189 ) ||
+				( kernel_is eq 5 4 && kernel_is gt 5 4 115 ) ||
+				( kernel_is eq 5 10 && kernel_is gt 5 10 33 ) ||
+				( kernel_is eq 5 11 && kernel_is gt 5 11 17 ) ||
+				( kernel_is eq 5 12 && kernel_is gt 5 12 0 ); then
+				UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
+				UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
+				UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
+				UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
+				UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
+				if [[ ${GCC_MAJOR_VER} -lt 9 ]]; then
+					UNIPATCH_DROP+=" 5010_enable-cpu-optimizations-universal.patch"
+				fi
+				# this legacy section should be targeted for removal
+				# optimization patch for gcc < 8.X and kernel > 4.13 and <  4.19
+			elif kernel_is ge 4 13; then
+				UNIPATCH_DROP+=" 5010_enable-cpu-optimizations-universal.patch"
 				if [[ ${GCC_MAJOR_VER} -lt 8 ]] && [[ ${GCC_MAJOR_VER} -gt 4 ]]; then
 					UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
 					UNIPATCH_DROP+=" 5012_enable-cpu-optimizations-for-gcc91.patch"
@@ -1265,6 +1296,7 @@ unipatch() {
 					UNIPATCH_DROP+=" 5013_enable-cpu-optimizations-for-gcc10.patch"
 				fi
 			else
+				UNIPATCH_DROP+=" 5010_enable-cpu-optimizations-universal.patch"
 				UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc.patch"
 				UNIPATCH_DROP+=" 5010_enable-additional-cpu-optimizations-for-gcc-4.9.patch"
 				UNIPATCH_DROP+=" 5011_enable-cpu-optimizations-for-gcc8.patch"
@@ -1316,34 +1348,31 @@ unipatch() {
 			if [ -z "${PATCH_DEPTH}" ]; then PATCH_DEPTH=0; fi
 
 			####################################################################
-			# IMPORTANT: This is temporary code to support Linux git 3.15_rc1! #
+			# IMPORTANT: This code is to support kernels which cannot be	   #
+			# tested with the --dry-run parameter									   #	
 			#                                                                  #
-			# The patch contains a removal of a symlink, followed by addition  #
-			# of a file with the same name as the symlink in the same          #
-			# location; this causes the dry-run to fail, filed bug #507656.    #
+			# These patches contain a removal of a symlink, followed by        #
+			# addition of a file with the same name as the symlink in the      #
+			# same location; this causes the dry-run to fail, see bug #507656. #
 			#                                                                  #
 			# https://bugs.gentoo.org/show_bug.cgi?id=507656                   #
 			####################################################################
-			if [[ -n ${K_FROM_GIT} ]] ; then
-				if [[ ${KV_MAJOR} -gt 3 || ( ${KV_MAJOR} -eq 3 && ${KV_PATCH} -gt 15 ) &&
-					${RELEASETYPE} == -rc ]] ; then
-					ebegin "Applying ${i/*\//} (-p1)"
-					if [ $(patch -p1 --no-backup-if-mismatch -f < ${i} >> ${STDERR_T}) "$?" -le 2 ]; then
-						eend 0
-						rm ${STDERR_T} || die
-						break
-					else
-						eend 1
-						eerror "Failed to apply patch ${i/*\//}"
-						eerror "Please attach ${STDERR_T} to any bug you may post."
-						eshopts_pop
-						die "Failed to apply ${i/*\//} on patch depth 1."
-					fi
+			if [[ -n ${K_NODRYRUN} ]] ; then
+				ebegin "Applying ${i/*\//} (-p1)"
+				if [ $(patch -p1 --no-backup-if-mismatch -f < ${i} >> ${STDERR_T}) "$?" -le 2 ]; then
+					eend 0
+					rm ${STDERR_T} || die
+				else
+					eend 1
+					eerror "Failed to apply patch ${i/*\//}"
+					eerror "Please attach ${STDERR_T} to any bug you may post."
+					eshopts_pop
+					die "Failed to apply ${i/*\//} on patch depth 1."
 				fi
 			fi
 			####################################################################
 
-			while [ ${PATCH_DEPTH} -lt 5 ]; do
+			while [ ${PATCH_DEPTH} -lt 5 ] && [ -z ${K_NODRYRUN} ]; do
 				echo "Attempting Dry-run:" >> ${STDERR_T}
 				echo "cmd: patch -p${PATCH_DEPTH} --no-backup-if-mismatch --dry-run -f < ${i}" >> ${STDERR_T}
 				echo "=======================================================" >> ${STDERR_T}
@@ -1627,9 +1656,9 @@ kernel-2_pkg_setup() {
 			echo
 			ewarn "Be warned !! >=sys-devel/gcc-4.0.0 isn't supported with linux-2.4!"
 			ewarn "Either switch to another gcc-version (via gcc-config) or use a"
-			ewarn "newer kernel that supports gcc-4."
+			ewarn "newer kernel that supports >=sys-devel/gcc-4."
 			echo
-			ewarn "Also be aware that bugreports about gcc-4 not working"
+			ewarn "Also, be aware that bug reports about gcc-4 not working"
 			ewarn "with linux-2.4 based ebuilds will be closed as INVALID!"
 			echo
 		fi

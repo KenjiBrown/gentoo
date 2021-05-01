@@ -1,30 +1,29 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit toolchain-funcs user
+EAPI=7
+
+VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/teemutoivola.asc
+inherit toolchain-funcs user verify-sig
 
 DESCRIPTION="Console-based network traffic monitor that keeps statistics of network usage"
 HOMEPAGE="https://humdi.net/vnstat/"
 SRC_URI="https://humdi.net/vnstat/${P}.tar.gz"
+SRC_URI+=" verify-sig? ( https://humdi.net/vnstat/${P}.tar.gz.asc )"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm hppa ppc ppc64 sparc x86"
+KEYWORDS="amd64 arm ~hppa ppc ppc64 sparc x86"
 IUSE="gd selinux test"
 RESTRICT="!test? ( test )"
 
-COMMON_DEPEND="
-	gd? ( media-libs/gd[png] )
-"
+RDEPEND="gd? ( media-libs/gd[png] )"
 DEPEND="
-	${COMMON_DEPEND}
+	${RDEPEND}
 	test? ( dev-libs/check )
 "
-RDEPEND="
-	${COMMON_DEPEND}
-	selinux? ( sec-policy/selinux-vnstatd )
-"
+RDEPEND+=" selinux? ( sec-policy/selinux-vnstatd )"
+BDEPEND="verify-sig? ( app-crypt/openpgp-keys-teemutoivola )"
 
 pkg_setup() {
 	enewgroup vnstat
@@ -41,6 +40,7 @@ src_prepare() {
 		-e 's|vnstat[.]pid|vnstatd/vnstatd.pid|' \
 		-e 's|/var/run|/run|' \
 		cfg/${PN}.conf || die
+
 	sed -i \
 		-e '/PIDFILE/s|/var/run|/run|' \
 		src/common.h || die
